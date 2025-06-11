@@ -7,8 +7,7 @@ import CategoryFilter from '../components/CategoryFilter';
 import TemplateCard from '../components/TemplateCard';
 import CreateCardModal from '../components/CreateCardModal';
 import Logo from '../assets/logo.png';
-import MainImage from '../assets/image.png';
-import TiImage from '../assets/ti.png';
+import HeroImage from '../assets/hero.jpg';
 import '../Auth.css'; // Reusing Auth.css for general app styles
 import { useLocation } from 'react-router-dom';
 
@@ -101,8 +100,7 @@ const Main = () => {
           <p>Choose a beautiful template</p>
           <p>(from a variety of themes)</p>
           <div className="animated-images-row" style={{ display: 'flex', gap: 16, justifyContent: 'center', alignItems: 'center' }}>
-             <img src={MainImage} alt="Main Visual 1" style={{ borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.08)', maxWidth: 300, width: '100%', height: 'auto', display: 'block' }} />
-             <img src={TiImage} alt="Main Visual 2" style={{ borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.08)', maxWidth: 300, width: '100%', height: 'auto', display: 'block' }} />
+            <img src={HeroImage} alt="Main Visual" style={{ borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.08)', maxWidth: 300, width: '100%', height: 'auto', display: 'block' }} />
           </div>
         </div>
       </header>

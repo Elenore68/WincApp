@@ -42,7 +42,7 @@ const OverviewPage = () => {
 
   // Use the template's ThumbnailUrl as the cover image
   const templateImage = template?.ThumbnailUrl || 'https://via.placeholder.com/300x400?text=Card+Cover';
-  const receiverImage = card.receiverImageUrl || 'https://via.placeholder.com/60x60?text=User';
+  const recipientImage = card.recipientImageUrl || 'https://via.placeholder.com/60x60?text=User';
 
   const handleShareClick = () => {
     setShowPremiumModal(true);
@@ -79,8 +79,8 @@ const OverviewPage = () => {
           <div className="overview-book" style={{ width: 328, height: 583, maxWidth: '100%', maxHeight: '100%' }}>
             <button className="modal-close" onClick={() => setIsOpen(false)}>&times;</button>
             <div className="overview-book-header">
-              <img src={receiverImage} alt="Receiver" className="overview-avatar" />
-              <span className="overview-receiver">To:{card.receiverName}</span>
+              <img src={recipientImage} alt="Recipient" className="overview-avatar" />
+              <span className="overview-recipient">To:{card.recipientName}</span>
             </div>
             <div className="overview-message">{card.message}</div>
             {card.videoUrl && (

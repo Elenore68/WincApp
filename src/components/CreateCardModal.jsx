@@ -6,6 +6,8 @@ import { storage } from '../firebaseConfig';
 import Input from './Input';
 import Button from './Button';
 import { IoCloudUploadOutline } from 'react-icons/io5';
+import { FaCheck, FaTimes, FaImage, FaVideo } from 'react-icons/fa';
+import { MdOutlineDelete } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import '../Auth.css';
 import { getAuth } from 'firebase/auth';
@@ -15,9 +17,9 @@ const auth = getAuth();
 const CreateCardModal = ({ open, onClose, templateId, cardData }) => {
   const [template, setTemplate] = useState(null);
   const [senderName, setSenderName] = useState('');
-  const [receiverName, setReceiverName] = useState('');
+  const [recipientName, setRecipientName] = useState('');
   const [message, setMessage] = useState('');
-  const [receiverImage, setReceiverImage] = useState(null);
+  const [recipientImage, setRecipientImage] = useState(null);
   const [video, setVideo] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -26,14 +28,14 @@ const CreateCardModal = ({ open, onClose, templateId, cardData }) => {
   useEffect(() => {
     if (cardData && open) {
       setSenderName(cardData.senderName || '');
-      setReceiverName(cardData.receiverName || '');
+      setRecipientName(cardData.recipientName || '');
       setMessage(cardData.message || '');
-      // Do not pre-fill receiverImage or video (file objects)
+      // Do not pre-fill recipientImage or video (file objects)
     } else if (open) {
       setSenderName('');
-      setReceiverName('');
+      setRecipientName('');
       setMessage('');
-      setReceiverImage(null);
+      setRecipientImage(null);
       setVideo(null);
     }
   }, [cardData, open]);
@@ -53,9 +55,9 @@ const CreateCardModal = ({ open, onClose, templateId, cardData }) => {
 
   if (!open) return null;
 
-  const handleImageUpload = (e) => {
+  const handleRecipientImageChange = (e) => {
     if (e.target.files[0]) {
-      setReceiverImage(e.target.files[0]);
+      setRecipientImage(e.target.files[0]);
     }
   };
 
@@ -65,16 +67,24 @@ const CreateCardModal = ({ open, onClose, templateId, cardData }) => {
     }
   };
 
+  const removeRecipientImage = () => {
+    setRecipientImage(null);
+  };
+
+  const removeVideo = () => {
+    setVideo(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    let receiverImageUrl = '';
+    let recipientImageUrl = '';
     let videoUrl = '';
     try {
-      if (receiverImage) {
-        const imageRef = ref(storage, `faces/${Date.now()}_${receiverImage.name}`);
-        await uploadBytes(imageRef, receiverImage);
-        receiverImageUrl = await getDownloadURL(imageRef);
+      if (recipientImage) {
+        const imageRef = ref(storage, `faces/${Date.now()}_${recipientImage.name}`);
+        await uploadBytes(imageRef, recipientImage);
+        recipientImageUrl = await getDownloadURL(imageRef);
       }
       if (video) {
         const videoRef = ref(storage, `videos/${Date.now()}_${video.name}`);
@@ -86,9 +96,9 @@ const CreateCardModal = ({ open, onClose, templateId, cardData }) => {
       const cardRef = await addDoc(collection(db, 'cards'), {
         templateId,
         senderName,
-        receiverName,
+        recipientName,
         message,
-        receiverImageUrl,
+        recipientImageUrl,
         videoUrl,
         templateImageUrl,
         createdAt: new Date(),
@@ -123,12 +133,12 @@ const CreateCardModal = ({ open, onClose, templateId, cardData }) => {
                 onChange={e => setSenderName(e.target.value)}
               />
               <Input
-                label="Receiver Name"
-                id="receiverName"
+                label="Recipient Name"
+                id="recipientName"
                 type="text"
-                placeholder=""
-                value={receiverName}
-                onChange={e => setReceiverName(e.target.value)}
+                placeholder="Enter recipient name"
+                value={recipientName}
+                onChange={e => setRecipientName(e.target.value)}
               />
               <div className="input-group">
                 <label htmlFor="message">Message</label>
@@ -140,28 +150,103 @@ const CreateCardModal = ({ open, onClose, templateId, cardData }) => {
                   onChange={e => setMessage(e.target.value)}
                 />
               </div>
-              <Button type="button" className="upload-btn" onClick={() => document.getElementById('receiver-image-input').click()}>
-                <IoCloudUploadOutline size={22} style={{ marginRight: 8 }} />
-                Upload a Receiver image
-                <input
-                  id="receiver-image-input"
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onChange={handleImageUpload}
-                />
-              </Button>
-              <Button type="button" className="upload-btn outline" onClick={() => document.getElementById('video-input').click()}>
-                <IoCloudUploadOutline size={22} style={{ marginRight: 8 }} />
-                Upload a video (optional)
-                <input
-                  id="video-input"
-                  type="file"
-                  accept="video/*"
-                  style={{ display: 'none' }}
-                  onChange={handleVideoUpload}
-                />
-              </Button>
+              
+              {/* Recipient Image Upload Section */}
+              <div className="upload-section">
+                <label style={{ display: 'block', marginBottom: 8, color: '#715AFF', fontWeight: 600, fontSize: '0.9em' }}>
+                  <FaImage size={16} style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                  Recipient Image
+                </label>
+                {recipientImage ? (
+                  <div className="upload-preview">
+                    <div className="preview-content">
+                      <img 
+                        src={URL.createObjectURL(recipientImage)} 
+                        alt="Recipient" 
+                        className="preview-image"
+                      />
+                      <div className="preview-info">
+                        <span className="file-name">{recipientImage.name}</span>
+                        <span className="file-size">{(recipientImage.size / 1024 / 1024).toFixed(2)} MB</span>
+                      </div>
+                    </div>
+                    <div className="preview-actions">
+                      <button
+                        type="button"
+                        className="delete-icon-btn"
+                        onClick={removeRecipientImage}
+                        title="Remove file"
+                        style={{ background: 'none', border: 'none', padding: 0, margin: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        onMouseEnter={e => e.currentTarget.querySelector('svg').style.color = '#b91c1c'}
+                        onMouseLeave={e => e.currentTarget.querySelector('svg').style.color = '#EF4444'}
+                      >
+                        <MdOutlineDelete size={24} style={{ color: '#EF4444', display: 'block' }} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button type="button" className="upload-btn" onClick={() => document.getElementById('recipient-image-input').click()}>
+                    <IoCloudUploadOutline size={22} style={{ marginRight: 8 }} />
+                    Upload a Recipient image
+                    <input
+                      id="recipient-image-input"
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={handleRecipientImageChange}
+                    />
+                  </Button>
+                )}
+              </div>
+
+              {/* Video Upload Section */}
+              <div className="upload-section">
+                <label style={{ display: 'block', marginBottom: 8, color: '#715AFF', fontWeight: 600, fontSize: '0.9em' }}>
+                  <FaVideo size={16} style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                  Video (Optional)
+                </label>
+                {video ? (
+                  <div className="upload-preview">
+                    <div className="preview-content">
+                      <video 
+                        src={URL.createObjectURL(video)} 
+                        className="preview-video"
+                        controls
+                      />
+                      <div className="preview-info">
+                        <span className="file-name">{video.name}</span>
+                        <span className="file-size">{(video.size / 1024 / 1024).toFixed(2)} MB</span>
+                      </div>
+                    </div>
+                    <div className="preview-actions">
+                      <button
+                        type="button"
+                        className="delete-icon-btn"
+                        onClick={removeVideo}
+                        title="Remove file"
+                        style={{ background: 'none', border: 'none', padding: 0, margin: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        onMouseEnter={e => e.currentTarget.querySelector('svg').style.color = '#b91c1c'}
+                        onMouseLeave={e => e.currentTarget.querySelector('svg').style.color = '#EF4444'}
+                      >
+                        <MdOutlineDelete size={24} style={{ color: '#EF4444', display: 'block' }} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button type="button" className="upload-btn outline" onClick={() => document.getElementById('video-input').click()}>
+                    <IoCloudUploadOutline size={22} style={{ marginRight: 8 }} />
+                    Upload a video (optional)
+                    <input
+                      id="video-input"
+                      type="file"
+                      accept="video/*"
+                      style={{ display: 'none' }}
+                      onChange={handleVideoUpload}
+                    />
+                  </Button>
+                )}
+              </div>
+
               <Button type="submit" disabled={loading} style={{ marginTop: 16 }}>
                 Next
               </Button>

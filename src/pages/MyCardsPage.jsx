@@ -94,7 +94,7 @@ const MyCardsPage = () => {
   const handleSaveEdit = async (updatedCard) => {
     let updatedFields = {
       senderName: updatedCard.senderName,
-      receiverName: updatedCard.receiverName,
+      recipientName: updatedCard.recipientName,
       message: updatedCard.message,
     };
     const storage = getStorage();
@@ -146,7 +146,7 @@ const MyCardsPage = () => {
           <div key={card.id} className="template-card" style={{ position: 'relative', width: 168, height: 210, background: 'none', boxShadow: 'none', margin: 0, padding: 0 }}
             onClick={() => setShowMenuFor(card.id)}
           >
-            <TemplateCard template={{ ThumbnailUrl: templateThumbnails[card.templateId] || '', Name: card.receiverName }} />
+            <TemplateCard template={{ ThumbnailUrl: templateThumbnails[card.templateId] || '', Name: card.recipientName }} />
             {card.message && <p className="template-card-desc">{card.message}</p>}
             {/* Video is hidden in the card grid */}
             {/* {card.videoUrl && (
@@ -198,9 +198,9 @@ const MyCardsPage = () => {
               <input
                 className="auth-input"
                 style={{ marginBottom: 10 }}
-                value={editCard.receiverName}
-                onChange={e => setEditCard({ ...editCard, receiverName: e.target.value })}
-                placeholder="Receiver Name"
+                value={editCard.recipientName}
+                onChange={e => setEditCard({ ...editCard, recipientName: e.target.value })}
+                placeholder="Recipient Name"
               />
               <textarea
                 className="auth-input"
@@ -222,9 +222,9 @@ const MyCardsPage = () => {
                   style={{ display: 'none' }}
                   onChange={handleImageChange}
                 />
-                {(editCard.templateImageUrl || editCard.receiverImageUrl) && !removeImage && (
+                {(editCard.templateImageUrl || editCard.recipientImageUrl) && !removeImage && (
                   <div style={{ position: 'relative', display: 'inline-block' }}>
-                    <img src={editCard.templateImageUrl || editCard.receiverImageUrl} alt="Current" style={{ width: 100, marginTop: 8, borderRadius: 8 }} />
+                    <img src={editCard.templateImageUrl || editCard.recipientImageUrl} alt="Current" style={{ width: 100, marginTop: 8, borderRadius: 8 }} />
                     <button
                       type="button"
                       onClick={() => setRemoveImage(true)}

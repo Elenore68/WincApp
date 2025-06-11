@@ -768,7 +768,7 @@ code {
   object-fit: cover;
   border: 2px solid #715AFF;
 }
-.overview-receiver {
+.overview-recipient {
   font-weight: 600;
   color: #333;
   font-size: 1.08em;
@@ -807,5 +807,131 @@ code {
   .overview-book {
     width: 98vw;
     padding: 18px 4vw 18px 4vw;
+  }
+}
+
+/* Upload Preview Styles */
+.upload-section {
+  margin-bottom: 20px;
+}
+
+.upload-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid #715AFF;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(113, 90, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.upload-preview:hover {
+  box-shadow: 0 4px 12px rgba(113, 90, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.preview-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 12px;
+}
+
+.preview-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #715AFF;
+}
+
+.preview-video {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #715AFF;
+  background: #f0f0f0;
+}
+
+.preview-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.file-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9em;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-size {
+  color: #666;
+  font-size: 0.8em;
+}
+
+.preview-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.delete-icon-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.2s;
+}
+.delete-icon-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #EF4444;
+}
+.delete-icon-btn svg {
+  color: #EF4444;
+  font-size: 24px;
+  transition: color 0.2s;
+}
+.delete-icon-btn:hover svg {
+  color: #b91c1c;
+}
+
+/* Responsive adjustments for upload previews */
+@media (max-width: 480px) {
+  .upload-preview {
+    padding: 10px;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .preview-content {
+    justify-content: center;
+  }
+  
+  .preview-actions {
+    justify-content: center;
+  }
+  
+  .file-name {
+    max-width: 150px;
+    text-align: center;
+  }
+  
+  .preview-image,
+  .preview-video {
+    width: 50px;
+    height: 50px;
   }
 }
