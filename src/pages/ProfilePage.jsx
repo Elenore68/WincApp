@@ -78,7 +78,6 @@ const ProfilePage = () => {
             <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer"><FaTiktok size={28} style={{ color: '#000' }} /></a>
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"><FaInstagram size={28} style={{ color: '#000' }} /></a>
             <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"><FaXTwitter size={28} style={{ color: '#000' }} /></a>
-            <span style={{ width: 28, height: 28, background: '#f9f9fe', borderRadius: 8, display: 'inline-block' }}></span>
           </div>
           {/* Logout */}
           <div style={{ textAlign: 'center', marginTop: 10 }}>

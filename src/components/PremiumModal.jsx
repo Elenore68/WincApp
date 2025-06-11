@@ -1,4 +1,5 @@
 import React from 'react';
+import Logo from '../assets/logo.png';
 
 const PremiumModal = ({ open, onClose, onJoin }) => {
   if (!open) return null;
@@ -6,9 +7,8 @@ const PremiumModal = ({ open, onClose, onJoin }) => {
     <div className="modal-overlay">
       <div className="modal-content" style={{ textAlign: 'center' }}>
         <button className="modal-close" onClick={onClose}>&times;</button>
-        <img src="src\assets\Logo.png" alt="Winc Logo" style={{ width: 80, margin: '0 auto 16px' }} />
-        <div style={{ fontWeight: 600, fontSize: 22, marginBottom: 10 }}>Winc</div>
-        <div style={{ marginBottom: 20 }}>
+        <img src={Logo} alt="Winc Logo" style={{ width: 80, margin: '0 auto 16px' }} />
+        <div style={{ marginBottom: 20, fontWeight: 500, fontSize: 18, color: '#222' }}>
           You must be a premium <b>Winc</b> Member<br />
           to access and share Ecards and Invites.
         </div>

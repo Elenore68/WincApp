@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs, query, where, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 import CategoryFilter from '../components/CategoryFilter';
@@ -11,6 +11,8 @@ import { IoIosArrowBack } from 'react-icons/io';
 import Button from '../components/Button';
 import '../Auth.css';
 import { CardActionMenu } from '../components/CardActionMenu';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import TemplateCard from '../components/TemplateCard';
 
 const MyCardsPage = () => {
   const navigate = useNavigate();
@@ -23,6 +25,13 @@ const MyCardsPage = () => {
   const [editCard, setEditCard] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareLink, setShareLink] = useState('');
+  const [newImage, setNewImage] = useState(null);
+  const [newVideo, setNewVideo] = useState(null);
+  const imageInputRef = useRef(null);
+  const videoInputRef = useRef(null);
+  const [removeImage, setRemoveImage] = useState(false);
+  const [removeVideo, setRemoveVideo] = useState(false);
+  const [templateThumbnails, setTemplateThumbnails] = useState({});
 
   // Auth check and fetch cards
   useEffect(() => {
@@ -36,6 +45,15 @@ const MyCardsPage = () => {
         const userCards = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setCards(userCards);
         setFilteredCards(userCards);
+        // Fetch all referenced templates
+        const templateIds = Array.from(new Set(userCards.map(card => card.templateId).filter(Boolean)));
+        const thumbnails = {};
+        await Promise.all(templateIds.map(async (tid) => {
+          const tRef = doc(db, 'templates', tid);
+          const tSnap = await getDoc(tRef);
+          if (tSnap.exists()) thumbnails[tid] = tSnap.data().ThumbnailUrl;
+        }));
+        setTemplateThumbnails(thumbnails);
       }
     });
     return () => unsubscribe();
@@ -70,15 +88,37 @@ const MyCardsPage = () => {
     setShowMenuFor(null);
   };
 
+  const handleImageChange = (e) => setNewImage(e.target.files[0]);
+  const handleVideoChange = (e) => setNewVideo(e.target.files[0]);
+
   const handleSaveEdit = async (updatedCard) => {
-    await updateDoc(doc(db, 'cards', updatedCard.id), {
+    let updatedFields = {
       senderName: updatedCard.senderName,
       receiverName: updatedCard.receiverName,
       message: updatedCard.message,
-      // Add more fields as needed
-    });
-    setCards(cards.map(card => card.id === updatedCard.id ? { ...card, ...updatedCard } : card));
+    };
+    const storage = getStorage();
+    if (newImage) {
+      const imageRef = ref(storage, `cards/${updatedCard.id}/image`);
+      await uploadBytes(imageRef, newImage);
+      updatedFields.templateImageUrl = await getDownloadURL(imageRef);
+    } else if (removeImage) {
+      updatedFields.templateImageUrl = null;
+    }
+    if (newVideo) {
+      const videoRef = ref(storage, `cards/${updatedCard.id}/video`);
+      await uploadBytes(videoRef, newVideo);
+      updatedFields.videoUrl = await getDownloadURL(videoRef);
+    } else if (removeVideo) {
+      updatedFields.videoUrl = null;
+    }
+    await updateDoc(doc(db, 'cards', updatedCard.id), updatedFields);
+    setCards(cards.map(card => card.id === updatedCard.id ? { ...card, ...updatedCard, ...updatedFields } : card));
     setShowEditModal(false);
+    setNewImage(null);
+    setNewVideo(null);
+    setRemoveImage(false);
+    setRemoveVideo(false);
   };
 
   return (
@@ -103,12 +143,15 @@ const MyCardsPage = () => {
       <CategoryFilter onSelectCategory={setSelectedCategory} selectedCategory={selectedCategory} />
       <div className="templates-grid">
         {filteredCards.map(card => (
-          <div key={card.id} className="template-card" style={{ position: 'relative' }}
+          <div key={card.id} className="template-card" style={{ position: 'relative', width: 168, height: 210, background: 'none', boxShadow: 'none', margin: 0, padding: 0 }}
             onClick={() => setShowMenuFor(card.id)}
           >
-            <img src={card.templateImageUrl || card.receiverImageUrl} alt={card.receiverName} className="template-card-image" />
-            <h3 className="template-card-name">{card.receiverName}</h3>
-            <p className="template-card-desc">{card.message}</p>
+            <TemplateCard template={{ ThumbnailUrl: templateThumbnails[card.templateId] || '', Name: card.receiverName }} />
+            {card.message && <p className="template-card-desc">{card.message}</p>}
+            {/* Video is hidden in the card grid */}
+            {/* {card.videoUrl && (
+              <video src={card.videoUrl} controls width={150} style={{ marginTop: 8, borderRadius: 8 }} />
+            )} */}
             {/* Card menu */}
             {showMenuFor === card.id && (
               <div style={{ position: 'absolute', top: 40, right: 10, zIndex: 10 }}>
@@ -125,9 +168,25 @@ const MyCardsPage = () => {
       {/* Edit Modal */}
       {showEditModal && editCard && (
         <div className="modal-overlay">
-          <div className="modal-content">
-            <button className="modal-close" onClick={() => setShowEditModal(false)}>&times;</button>
-            <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 10 }}>Edit Card</div>
+          <div className="modal-content" style={{ position: 'relative' }}>
+            <button
+              className="modal-close"
+              onClick={() => setShowEditModal(false)}
+              style={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                background: 'none',
+                border: 'none',
+                fontSize: 28,
+                color: '#888',
+                cursor: 'pointer'
+              }}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 10, marginTop: 24 }}>Edit Card</div>
             <form onSubmit={e => { e.preventDefault(); handleSaveEdit(editCard); }}>
               <input
                 className="auth-input"
@@ -150,6 +209,60 @@ const MyCardsPage = () => {
                 onChange={e => setEditCard({ ...editCard, message: e.target.value })}
                 placeholder="Message"
               />
+              {/* Image upload */}
+              <div style={{ marginBottom: 10 }}>
+                <label style={{ fontWeight: 500, display: 'block', marginBottom: 4 }}>Change Image:</label>
+                <Button type="button" onClick={() => imageInputRef.current.click()} style={{ marginBottom: 8 }}>
+                  Change Image
+                </Button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={imageInputRef}
+                  style={{ display: 'none' }}
+                  onChange={handleImageChange}
+                />
+                {(editCard.templateImageUrl || editCard.receiverImageUrl) && !removeImage && (
+                  <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <img src={editCard.templateImageUrl || editCard.receiverImageUrl} alt="Current" style={{ width: 100, marginTop: 8, borderRadius: 8 }} />
+                    <button
+                      type="button"
+                      onClick={() => setRemoveImage(true)}
+                      style={{ position: 'absolute', top: 0, right: 0, background: 'none', border: 'none', cursor: 'pointer' }}
+                      aria-label="Delete image"
+                    >
+                      <MdOutlineDelete size={20} color="#F44" />
+                    </button>
+                  </div>
+                )}
+              </div>
+              {/* Video upload */}
+              <div style={{ marginBottom: 10 }}>
+                <label style={{ fontWeight: 500, display: 'block', marginBottom: 4 }}>Upload Video:</label>
+                <Button type="button" onClick={() => videoInputRef.current.click()} style={{ marginBottom: 8 }}>
+                  Upload Video
+                </Button>
+                <input
+                  type="file"
+                  accept="video/*"
+                  ref={videoInputRef}
+                  style={{ display: 'none' }}
+                  onChange={handleVideoChange}
+                />
+                {editCard.videoUrl && !removeVideo && (
+                  <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <video src={editCard.videoUrl} controls width={150} style={{ marginTop: 8, borderRadius: 8 }} />
+                    <button
+                      type="button"
+                      onClick={() => setRemoveVideo(true)}
+                      style={{ position: 'absolute', top: 0, right: 0, background: 'none', border: 'none', cursor: 'pointer' }}
+                      aria-label="Delete video"
+                    >
+                      <MdOutlineDelete size={20} color="#F44" />
+                    </button>
+                  </div>
+                )}
+              </div>
               <Button type="submit" style={{ marginTop: 10 }}>Save Changes</Button>
             </form>
           </div>

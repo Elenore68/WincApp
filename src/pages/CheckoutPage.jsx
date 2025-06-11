@@ -23,6 +23,11 @@ const CheckoutPage = () => {
     }
   };
 
+  const handleShareModalClose = () => {
+    setShowShareModal(false);
+    navigate('/my-cards');
+  };
+
   return (
     <div style={{
       background: '#222',
@@ -83,31 +88,16 @@ const CheckoutPage = () => {
           width: 270,
           marginBottom: 18
         }}>
-          <div style={{ color: '#888', fontWeight: 600, marginBottom: 10 }}>order sumery</div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+          <div style={{ color: '#888', fontWeight: 600, marginBottom: 10 }}>order summary</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: '#222' }}>
             <span>1 creating card</span>
             <span>3.40$</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, marginBottom: 12 }}>
+          <hr />
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, marginTop: 12, marginBottom: 12, color: '#222' }}>
             <span>total to pay</span>
             <span>3.40$</span>
           </div>
-          <button
-            style={{
-              width: '100%',
-              background: 'linear-gradient(90deg, #A682FF 0%, #715AFF 100%)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              padding: '10px 0',
-              fontWeight: 600,
-              fontSize: 15,
-              marginBottom: 0,
-              cursor: 'pointer'
-            }}
-          >
-            Become a member and save 50%
-          </button>
         </div>
 
         <div style={{
@@ -149,7 +139,7 @@ const CheckoutPage = () => {
       </div>
       <ShareLinkModal
         open={showShareModal}
-        onClose={() => setShowShareModal(false)}
+        onClose={handleShareModalClose}
         cardLink={cardLink}
       />
     </div>
