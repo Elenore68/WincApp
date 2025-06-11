@@ -212,12 +212,9 @@ code {
   padding: 18px 50px;
   height: 65px;
   z-index: 1000;
-  overflow: visible;
   border-radius: 30px 30px 0 0;
   box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.06);
 }
-
-
 
 .navbar-item {
   display: flex;
@@ -245,33 +242,6 @@ code {
   font-size: 12px;
   margin-top: 1px;
   font-weight: 500;
-}
-
-.create-card-btn {
-  background: #7C3AED !important;
-  color: white !important;
-  border: none !important;
-  border-radius: 50%;
-  width: 56px;
-  height: 56px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1001;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  padding: 0 !important;
-}
-
-.create-card-btn:hover {
-  background: #6D28D9 !important;
-  transform: translateX(-50%) translateY(-2px) scale(1.05);
-  box-shadow: 0 12px 32px rgba(124, 58, 237, 0.4);
 }
 
 @media (max-width: 480px) {

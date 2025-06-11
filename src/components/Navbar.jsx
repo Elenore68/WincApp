@@ -1,18 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaHome, FaPlus, FaUser } from 'react-icons/fa';
+import { FaHome, FaUser } from 'react-icons/fa';
 import '../Auth.css'; // Reusing Auth.css for general styles, or could create a new App.css
 
-const Navbar = ({ onPlusClick }) => {
+const Navbar = () => {
   return (
     <nav className="navbar">
       <Link to="/" className="navbar-item">
         <FaHome size={24} />
         <span>Home</span>
       </Link>
-      <button type="button" onClick={onPlusClick} className="create-card-btn">
-        <FaPlus size={20} />
-      </button>
       <Link to="/profile" className="navbar-item">
         <FaUser size={24} />
         <span>Profile</span>
