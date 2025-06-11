@@ -10,8 +10,8 @@ const Navbar = ({ onPlusClick }) => {
         <FaHome size={24} />
         <span>Home</span>
       </Link>
-      <button type="button" onClick={onPlusClick} className="navbar-item create-card-btn" style={{ border: 'none', background: 'none', padding: 0 }}>
-        <FaPlus size={24} />
+      <button type="button" onClick={onPlusClick} className="create-card-btn">
+        <FaPlus size={20} />
       </button>
       <Link to="/profile" className="navbar-item">
         <FaUser size={24} />
