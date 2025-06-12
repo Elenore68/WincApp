@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import AuthFormContainer from "../components/AuthFormContainer";
 import Input from "../components/Input";
 import Button from "../components/Button";
-import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, OAuthProvider, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, OAuthProvider, updateProfile } from 'firebase/auth';
 import { app } from '../firebaseConfig';
 import { getAuth } from 'firebase/auth';
 import { FcGoogle } from "react-icons/fc";
@@ -18,6 +18,39 @@ const SignUp = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Check if user is on mobile device
+  const isMobile = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
+  };
+
+  // Check for redirect result on component mount
+  useEffect(() => {
+    const checkRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          // User successfully signed up via redirect
+          alert("Signed up with Google successfully!");
+          if (location.state && location.state.cardId) {
+            navigate("/checkout", {
+              state: {
+                cardId: location.state.cardId,
+                templateImage: location.state.templateImage,
+              },
+            });
+          } else {
+            navigate("/");
+          }
+        }
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    checkRedirectResult();
+  }, [navigate, location.state]);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -46,40 +79,62 @@ const SignUp = () => {
 
   const handleGoogleSignUp = async () => {
     setError(null);
+    // Google Sign-Up functionality temporarily disabled
+    alert("Google Sign-Up is currently unavailable. Please use email/password sign-up.");
+    return;
+    
+    // Commented out Google Sign-Up functionality
+    /*
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      alert("Signed up with Google successfully!");
-      if (location.state && location.state.cardId) {
-        navigate("/checkout", {
-          state: {
-            cardId: location.state.cardId,
-            templateImage: location.state.templateImage,
-          },
-        });
+      
+      if (isMobile()) {
+        // Use redirect for mobile devices
+        await signInWithRedirect(auth, provider);
+        // Note: The redirect result will be handled in the useEffect above
       } else {
-        navigate("/");
+        // Use popup for desktop devices
+        const result = await signInWithPopup(auth, provider);
+        alert("Signed up with Google successfully!");
+        if (location.state && location.state.cardId) {
+          navigate("/checkout", {
+            state: {
+              cardId: location.state.cardId,
+              templateImage: location.state.templateImage,
+            },
+          });
+        } else {
+          navigate("/");
+        }
       }
     } catch (err) {
       setError(err.message);
     }
+    */
   };
 
   const handleAppleSignUp = async () => {
     setError(null);
     try {
       const provider = new OAuthProvider("apple.com");
-      await signInWithPopup(auth, provider);
-      alert("Signed up with Apple successfully!");
-      if (location.state && location.state.cardId) {
-        navigate("/checkout", {
-          state: {
-            cardId: location.state.cardId,
-            templateImage: location.state.templateImage,
-          },
-        });
+      
+      if (isMobile()) {
+        // Use redirect for mobile devices
+        await signInWithRedirect(auth, provider);
       } else {
-        navigate("/");
+        // Use popup for desktop devices
+        const result = await signInWithPopup(auth, provider);
+        alert("Signed up with Apple successfully!");
+        if (location.state && location.state.cardId) {
+          navigate("/checkout", {
+            state: {
+              cardId: location.state.cardId,
+              templateImage: location.state.templateImage,
+            },
+          });
+        } else {
+          navigate("/");
+        }
       }
     } catch (err) {
       setError(err.message);
