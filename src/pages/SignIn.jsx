@@ -3,14 +3,13 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import AuthFormContainer from "../components/AuthFormContainer";
 import Input from "../components/Input";
 import Button from "../components/Button";
-// import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
-// import { app } from '../firebaseConfig';
-// import { getAuth } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
+import { app } from '../firebaseConfig';
+import { getAuth } from 'firebase/auth';
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
-import { signIn } from "../api/AuthApi";
 
-// const auth = getAuth(app);
+const auth = getAuth(app);
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -24,7 +23,7 @@ const SignIn = () => {
     setError(null);
 
     try {
-      await signIn({ email, password });
+      await signInWithEmailAndPassword(auth, email, password);
 
       alert("Signed in successfully!");
       if (location.state && location.state.cardId) {
@@ -38,53 +37,51 @@ const SignIn = () => {
         navigate("/");
       }
     } catch (err) {
-      const message =
-        err.response?.data?.message || err.message || "Failed to sign in.";
-      setError(message);
+      setError(err.message);
     }
   };
 
-  // const handleGoogleSignIn = async () => {
-  //   setError(null);
-  //   try {
-  //     const provider = new GoogleAuthProvider();
-  //     await signInWithPopup(auth, provider);
-  //     alert("Signed in with Google successfully!");
-  //     if (location.state && location.state.cardId) {
-  //       navigate("/checkout", {
-  //         state: {
-  //           cardId: location.state.cardId,
-  //           templateImage: location.state.templateImage,
-  //         },
-  //       });
-  //     } else {
-  //       navigate("/");
-  //     }
-  //   } catch (err) {
-  //     setError(err.message);
-  //   }
-  // };
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      alert("Signed in with Google successfully!");
+      if (location.state && location.state.cardId) {
+        navigate("/checkout", {
+          state: {
+            cardId: location.state.cardId,
+            templateImage: location.state.templateImage,
+          },
+        });
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
-  // const handleAppleSignIn = async () => {
-  //   setError(null);
-  //   try {
-  //     const provider = new OAuthProvider("apple.com");
-  //     await signInWithPopup(auth, provider);
-  //     alert("Signed in with Apple successfully!");
-  //     if (location.state && location.state.cardId) {
-  //       navigate("/checkout", {
-  //         state: {
-  //           cardId: location.state.cardId,
-  //           templateImage: location.state.templateImage,
-  //         },
-  //       });
-  //     } else {
-  //       navigate("/");
-  //     }
-  //   } catch (err) {
-  //     setError(err.message);
-  //   }
-  // };
+  const handleAppleSignIn = async () => {
+    setError(null);
+    try {
+      const provider = new OAuthProvider("apple.com");
+      await signInWithPopup(auth, provider);
+      alert("Signed in with Apple successfully!");
+      if (location.state && location.state.cardId) {
+        navigate("/checkout", {
+          state: {
+            cardId: location.state.cardId,
+            templateImage: location.state.templateImage,
+          },
+        });
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   return (
     <div
@@ -129,12 +126,10 @@ const SignIn = () => {
         <div className="social-login">
           <div className="social-login-divider">or</div>
           <div className="social-buttons">
-            <Button className="social-button">
-              {/* <Button onClick={handleGoogleSignIn} className="social-button"> */}
+            <Button onClick={handleGoogleSignIn} className="social-button">
               <FcGoogle size={30} />
             </Button>
-            {/* <Button onClick={handleAppleSignIn} className="social-button"> */}
-            <Button className="social-button">
+            <Button onClick={handleAppleSignIn} className="social-button">
               <FaApple size={30} style={{ color: "#000000" }} />
             </Button>
           </div>

@@ -3,14 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthFormContainer from "../components/AuthFormContainer";
 import Input from "../components/Input";
 import Button from "../components/Button";
-// import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
-// import { app } from '../firebaseConfig';
-// import { getAuth } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, OAuthProvider, updateProfile } from 'firebase/auth';
+import { app } from '../firebaseConfig';
+import { getAuth } from 'firebase/auth';
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
-import { signUp } from "../api/AuthApi";
 
-// const auth = getAuth(app);
+const auth = getAuth(app);
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -24,44 +23,40 @@ const SignUp = () => {
     setError(null);
 
     try {
-      const payload = {
-        email,
-        password,
-        display_name: name,
-      };
-
-      await signUp(payload);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, {
+        displayName: name
+      });
       alert("✅ Account created successfully! Please sign in.");
       navigate("/signin");
     } catch (err) {
-      const message = err.response?.data?.message || err.message;
-      setError(message);
+      setError(err.message);
     }
   };
 
-  // const handleGoogleSignUp = async () => {
-  //   setError(null);
-  //   try {
-  //     const provider = new GoogleAuthProvider();
-  //     await signInWithPopup(auth, provider);
-  //     alert("Signed up with Google successfully!");
-  //     navigate("/");
-  //   } catch (err) {
-  //     setError(err.message);
-  //   }
-  // };
+  const handleGoogleSignUp = async () => {
+    setError(null);
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      alert("Signed up with Google successfully!");
+      navigate("/");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
-  // const handleAppleSignUp = async () => {
-  //   setError(null);
-  //   try {
-  //     const provider = new OAuthProvider("apple.com");
-  //     await signInWithPopup(auth, provider);
-  //     alert("Signed up with Apple successfully!");
-  //     navigate("/");
-  //   } catch (err) {
-  //     setError(err.message);
-  //   }
-  // };
+  const handleAppleSignUp = async () => {
+    setError(null);
+    try {
+      const provider = new OAuthProvider("apple.com");
+      await signInWithPopup(auth, provider);
+      alert("Signed up with Apple successfully!");
+      navigate("/");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   return (
     <div
@@ -111,12 +106,10 @@ const SignUp = () => {
         <div className="social-login">
           <div className="social-login-divider">or</div>
           <div className="social-buttons">
-            <Button className="social-button">
-              {/* <Button onClick={handleGoogleSignUp} className="social-button"> */}
+            <Button onClick={handleGoogleSignUp} className="social-button">
               <FcGoogle size={30} />
             </Button>
-            <Button className="social-button">
-              {/* <Button onClick={handleAppleSignUp} className="social-button"> */}
+            <Button onClick={handleAppleSignUp} className="social-button">
               <FaApple size={30} style={{ color: "#000000" }} />
             </Button>
           </div>
