@@ -87,7 +87,14 @@ const OverviewPage = () => {
     <div className="main-page-container">
       <div
         className="overview-header"
-        style={{ display: "flex", alignItems: "center", gap: 10 }}
+        style={{ 
+          display: "flex", 
+          alignItems: "center", 
+          gap: 10,
+          position: "sticky",
+          top: 0,
+          zIndex: 100
+        }}
       >
         <button
           onClick={() =>
