@@ -27,7 +27,6 @@ const SignUp = () => {
       const payload = {
         email,
         password,
-        phone: "+966500000000", // TODO: Replace with user input if you want phone number input
         display_name: name,
       };
 
