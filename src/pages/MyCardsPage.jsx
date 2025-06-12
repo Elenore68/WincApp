@@ -72,6 +72,11 @@ const MyCardsPage = () => {
     setEditCard(card);
     setShowEditModal(true);
     setShowMenuFor(null);
+    // Reset upload states
+    setNewImage(null);
+    setNewVideo(null);
+    setRemoveImage(false);
+    setRemoveVideo(false);
   };
 
   const handleDelete = async (cardId) => {
@@ -92,33 +97,67 @@ const MyCardsPage = () => {
   const handleVideoChange = (e) => setNewVideo(e.target.files[0]);
 
   const handleSaveEdit = async (updatedCard) => {
-    let updatedFields = {
-      senderName: updatedCard.senderName,
-      recipientName: updatedCard.recipientName,
-      message: updatedCard.message,
-    };
-    const storage = getStorage();
-    if (newImage) {
-      const imageRef = ref(storage, `cards/${updatedCard.id}/image`);
-      await uploadBytes(imageRef, newImage);
-      updatedFields.templateImageUrl = await getDownloadURL(imageRef);
-    } else if (removeImage) {
-      updatedFields.templateImageUrl = null;
+    try {
+      console.log('Original card data:', updatedCard);
+      
+      let updatedFields = {
+        senderName: updatedCard.senderName || '',
+        name: updatedCard.name || '',
+        message: updatedCard.message || '',
+        lastModified: new Date(),
+      };
+      
+      // Remove any undefined values to prevent Firebase errors
+      Object.keys(updatedFields).forEach(key => {
+        if (updatedFields[key] === undefined) {
+          delete updatedFields[key];
+        }
+      });
+      
+      console.log('Fields to update:', updatedFields);
+      
+      const storage = getStorage();
+      
+      // Handle image upload/removal
+      if (newImage) {
+        const imageRef = ref(storage, `faces/${auth.currentUser.uid}/${Date.now()}/face.jpg`);
+        await uploadBytes(imageRef, newImage);
+        updatedFields.recipientPhotoUrl = await getDownloadURL(imageRef);
+      } else if (removeImage) {
+        updatedFields.recipientPhotoUrl = null;
+      }
+      
+      // Handle video upload/removal
+      if (newVideo) {
+        const videoRef = ref(storage, `videos/${auth.currentUser.uid}/${Date.now()}/video.mp4`);
+        await uploadBytes(videoRef, newVideo);
+        updatedFields.videoUrl = await getDownloadURL(videoRef);
+      } else if (removeVideo) {
+        updatedFields.videoUrl = null;
+      }
+      
+      // Update the card in Firestore
+      await updateDoc(doc(db, 'cards', updatedCard.id), updatedFields);
+      
+      // Update local state
+      setCards(cards.map(card => 
+        card.id === updatedCard.id 
+          ? { ...card, ...updatedFields } 
+          : card
+      ));
+      
+      // Reset modal state
+      setShowEditModal(false);
+      setNewImage(null);
+      setNewVideo(null);
+      setRemoveImage(false);
+      setRemoveVideo(false);
+      
+      alert('Card updated successfully!');
+    } catch (error) {
+      console.error('Error updating card:', error);
+      alert('Failed to update card. Please try again.');
     }
-    if (newVideo) {
-      const videoRef = ref(storage, `cards/${updatedCard.id}/video`);
-      await uploadBytes(videoRef, newVideo);
-      updatedFields.videoUrl = await getDownloadURL(videoRef);
-    } else if (removeVideo) {
-      updatedFields.videoUrl = null;
-    }
-    await updateDoc(doc(db, 'cards', updatedCard.id), updatedFields);
-    setCards(cards.map(card => card.id === updatedCard.id ? { ...card, ...updatedCard, ...updatedFields } : card));
-    setShowEditModal(false);
-    setNewImage(null);
-    setNewVideo(null);
-    setRemoveImage(false);
-    setRemoveVideo(false);
   };
 
   return (
@@ -144,9 +183,12 @@ const MyCardsPage = () => {
       <div className="templates-grid">
         {filteredCards.map(card => (
           <div key={card.id} className="template-card" style={{ position: 'relative', width: 168, height: 210, background: 'none', boxShadow: 'none', margin: 0, padding: 0 }}
-            onClick={() => setShowMenuFor(card.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMenuFor(showMenuFor === card.id ? null : card.id);
+            }}
           >
-            <TemplateCard template={{ ThumbnailUrl: templateThumbnails[card.templateId] || '', Name: card.recipientName }} />
+            <TemplateCard template={{ ThumbnailUrl: templateThumbnails[card.templateId] || '', Name: card.receiverName }} />
             {card.message && <p className="template-card-desc">{card.message}</p>}
             {/* Video is hidden in the card grid */}
             {/* {card.videoUrl && (
@@ -159,6 +201,7 @@ const MyCardsPage = () => {
                   onEdit={() => handleEdit(card)}
                   onDelete={() => handleDelete(card.id)}
                   onShare={() => handleShare(card.id)}
+                  onClose={() => setShowMenuFor(null)}
                 />
               </div>
             )}
@@ -198,9 +241,9 @@ const MyCardsPage = () => {
               <input
                 className="auth-input"
                 style={{ marginBottom: 10 }}
-                value={editCard.recipientName}
-                onChange={e => setEditCard({ ...editCard, recipientName: e.target.value })}
-                placeholder="Recipient Name"
+                value={editCard.name || ''}
+                onChange={e => setEditCard({ ...editCard, name: e.target.value })}
+                placeholder="Recipient"
               />
               <textarea
                 className="auth-input"
@@ -210,9 +253,8 @@ const MyCardsPage = () => {
                 placeholder="Message"
               />
               {/* Image upload */}
-              <div style={{ marginBottom: 10 }}>
-                <label style={{ fontWeight: 500, display: 'block', marginBottom: 4 }}>Change Image:</label>
-                <Button type="button" onClick={() => imageInputRef.current.click()} style={{ marginBottom: 8 }}>
+              <div className="upload-section">
+                <Button type="button" className="upload-btn" onClick={() => imageInputRef.current.click()}>
                   Change Image
                 </Button>
                 <input
@@ -222,24 +264,59 @@ const MyCardsPage = () => {
                   style={{ display: 'none' }}
                   onChange={handleImageChange}
                 />
-                {(editCard.templateImageUrl || editCard.recipientImageUrl) && !removeImage && (
-                  <div style={{ position: 'relative', display: 'inline-block' }}>
-                    <img src={editCard.templateImageUrl || editCard.recipientImageUrl} alt="Current" style={{ width: 100, marginTop: 8, borderRadius: 8 }} />
-                    <button
-                      type="button"
-                      onClick={() => setRemoveImage(true)}
-                      style={{ position: 'absolute', top: 0, right: 0, background: 'none', border: 'none', cursor: 'pointer' }}
-                      aria-label="Delete image"
-                    >
-                      <MdOutlineDelete size={20} color="#F44" />
-                    </button>
+                {newImage ? (
+                  <div className="upload-preview">
+                    <div className="preview-content">
+                      <img 
+                        src={URL.createObjectURL(newImage)} 
+                        alt="New Image" 
+                        className="preview-image"
+                      />
+                      <div className="preview-info">
+                        <span className="file-name">{newImage.name}</span>
+                        <span className="file-size">{(newImage.size / 1024 / 1024).toFixed(2)} MB</span>
+                      </div>
+                    </div>
+                    <div className="preview-actions">
+                      <button
+                        type="button"
+                        className="delete-icon-btn"
+                        onClick={() => setNewImage(null)}
+                        title="Remove new image"
+                      >
+                        <MdOutlineDelete size={24} style={{ color: '#EF4444' }} />
+                      </button>
+                    </div>
                   </div>
-                )}
+                ) : editCard.recipientPhotoUrl && !removeImage ? (
+                  <div className="upload-preview">
+                    <div className="preview-content">
+                      <img 
+                        src={editCard.recipientPhotoUrl} 
+                        alt="Current Image" 
+                        className="preview-image"
+                      />
+                      <div className="preview-info">
+                        <span className="file-name">Current image</span>
+                        <span className="file-size">From previous upload</span>
+                      </div>
+                    </div>
+                    <div className="preview-actions">
+                      <button
+                        type="button"
+                        className="delete-icon-btn"
+                        onClick={() => setRemoveImage(true)}
+                        title="Remove current image"
+                      >
+                        <MdOutlineDelete size={24} style={{ color: '#EF4444' }} />
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
               </div>
               {/* Video upload */}
-              <div style={{ marginBottom: 10 }}>
-                <label style={{ fontWeight: 500, display: 'block', marginBottom: 4 }}>Upload Video:</label>
-                <Button type="button" onClick={() => videoInputRef.current.click()} style={{ marginBottom: 8 }}>
+              <div className="upload-section">
+                <Button type="button" className="upload-btn outline" onClick={() => videoInputRef.current.click()}>
                   Upload Video
                 </Button>
                 <input
@@ -249,19 +326,55 @@ const MyCardsPage = () => {
                   style={{ display: 'none' }}
                   onChange={handleVideoChange}
                 />
-                {editCard.videoUrl && !removeVideo && (
-                  <div style={{ position: 'relative', display: 'inline-block' }}>
-                    <video src={editCard.videoUrl} controls width={150} style={{ marginTop: 8, borderRadius: 8 }} />
-                    <button
-                      type="button"
-                      onClick={() => setRemoveVideo(true)}
-                      style={{ position: 'absolute', top: 0, right: 0, background: 'none', border: 'none', cursor: 'pointer' }}
-                      aria-label="Delete video"
-                    >
-                      <MdOutlineDelete size={20} color="#F44" />
-                    </button>
+                {newVideo ? (
+                  <div className="upload-preview">
+                    <div className="preview-content">
+                      <video 
+                        src={URL.createObjectURL(newVideo)} 
+                        className="preview-video"
+                        controls
+                      />
+                      <div className="preview-info">
+                        <span className="file-name">{newVideo.name}</span>
+                        <span className="file-size">{(newVideo.size / 1024 / 1024).toFixed(2)} MB</span>
+                      </div>
+                    </div>
+                    <div className="preview-actions">
+                      <button
+                        type="button"
+                        className="delete-icon-btn"
+                        onClick={() => setNewVideo(null)}
+                        title="Remove new video"
+                      >
+                        <MdOutlineDelete size={24} style={{ color: '#EF4444' }} />
+                      </button>
+                    </div>
                   </div>
-                )}
+                ) : editCard.videoUrl && !removeVideo ? (
+                  <div className="upload-preview">
+                    <div className="preview-content">
+                      <video 
+                        src={editCard.videoUrl} 
+                        className="preview-video"
+                        controls
+                      />
+                      <div className="preview-info">
+                        <span className="file-name">Current video</span>
+                        <span className="file-size">From previous upload</span>
+                      </div>
+                    </div>
+                    <div className="preview-actions">
+                      <button
+                        type="button"
+                        className="delete-icon-btn"
+                        onClick={() => setRemoveVideo(true)}
+                        title="Remove current video"
+                      >
+                        <MdOutlineDelete size={24} style={{ color: '#EF4444' }} />
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
               </div>
               <Button type="submit" style={{ marginTop: 10 }}>Save Changes</Button>
             </form>

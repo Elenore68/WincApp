@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from "react";
-// import { collection, getDocs } from "firebase/firestore";
-// import { db } from "../firebaseConfig";
-import Navbar from "../components/Navbar";
-import SearchBar from "../components/SearchBar";
-import CategoryFilter from "../components/CategoryFilter";
-import TemplateCard from "../components/TemplateCard";
-import CreateCardModal from "../components/CreateCardModal";
-import Logo from "../assets/logo.png";
-import HeroImage from "../assets/hero.jpg";
-import "../Auth.css"; // Reusing Auth.css for general app styles
-import { useLocation } from "react-router-dom";
-import { fetchMainPageData } from "../api/mainPage";
+import React, { useState, useEffect } from 'react';
+import { collection, getDocs } from "firebase/firestore";
+import { db } from '../firebaseConfig';
+import Navbar from '../components/Navbar';
+import SearchBar from '../components/SearchBar';
+import CategoryFilter from '../components/CategoryFilter';
+import TemplateCard from '../components/TemplateCard';
+import CreateCardModal from '../components/CreateCardModal';
+import Logo from '../assets/logo.png';
+import HeroImage from '../assets/hero.jpg';
+import '../Auth.css'; // Reusing Auth.css for general app styles
+import { useLocation } from 'react-router-dom';
 
 const Main = () => {
   const location = useLocation();
@@ -31,49 +30,22 @@ const Main = () => {
     }
   }, [location.state]);
 
-  // useEffect(() => {
-  //   const fetchTemplates = async () => {
-  //     const templatesCollectionRef = collection(db, "templates");
-  //     const templateSnapshot = await getDocs(templatesCollectionRef);
-  //     const templateList = templateSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  //     setTemplates(templateList);
-  //     setFilteredTemplates(templateList); // Initialize filtered templates with all templates
-  //   };
-  //   const fetchCategories = async () => {
-  //     const categoriesCollectionRef = collection(db, "categories");
-  //     const categorySnapshot = await getDocs(categoriesCollectionRef);
-  //     const categoryList = categorySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  //     setCategories(categoryList);
-  //   };
-  //   fetchTemplates();
-  //   fetchCategories();
-  // }, []);
-
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { templates, categories } = await fetchMainPageData();
-
-        // Flatten template objects to have consistent keys for rendering
-        const flatTemplates = templates.map((item) => ({
-          ...item.template,
-          CategoryName: item.category.name,
-          CategoryId: item.template.category_id,
-          ThumbnailUrl: item.template.thumbnail_url,
-          Name: item.template.name,
-          Description: item.template.description,
-          Tags: item.template.tags,
-        }));
-
-        setTemplates(flatTemplates);
-        setFilteredTemplates(flatTemplates);
-        setCategories(categories);
-      } catch (err) {
-        console.error("❌ Failed to load data:", err);
-      }
+    const fetchTemplates = async () => {
+      const templatesCollectionRef = collection(db, "templates");
+      const templateSnapshot = await getDocs(templatesCollectionRef);
+      const templateList = templateSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setTemplates(templateList);
+      setFilteredTemplates(templateList); // Initialize filtered templates with all templates
     };
-
-    fetchData();
+    const fetchCategories = async () => {
+      const categoriesCollectionRef = collection(db, "categories");
+      const categorySnapshot = await getDocs(categoriesCollectionRef);
+      const categoryList = categorySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setCategories(categoryList);
+    };
+    fetchTemplates();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -135,27 +107,8 @@ const Main = () => {
           {/* Placeholder for animated images/tutorial */}
           <p>Choose a beautiful template</p>
           <p>(from a variety of themes)</p>
-          <div
-            className="animated-images-row"
-            style={{
-              display: "flex",
-              gap: 16,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <img
-              src={HeroImage}
-              alt="Main Visual"
-              style={{
-                borderRadius: 16,
-                boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-                maxWidth: 300,
-                width: "100%",
-                height: "auto",
-                display: "block",
-              }}
-            />
+          <div className="animated-images-row" style={{ display: 'flex', gap: 16, justifyContent: 'center', alignItems: 'center' }}>
+             <img src={HeroImage} alt="Hero Visual" style={{ borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.08)', maxWidth: 300, width: '100%', height: 'auto', display: 'block' }} />
           </div>
         </div>
       </header>

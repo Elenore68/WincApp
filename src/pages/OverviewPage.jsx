@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-// import { doc, getDoc } from "firebase/firestore";
-// import { db } from "../firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 import Button from "../components/Button";
 import PremiumModal from "../components/PremiumModal";
 import "../Auth.css";
-// import { FaPlay } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
-import { getCardById } from "../api/CardsApi";
 
 const OverviewPage = () => {
   const { cardId } = useParams();
@@ -21,9 +19,21 @@ const OverviewPage = () => {
     const fetchCard = async () => {
       if (!cardId) return;
       try {
-        const result = await getCardById(cardId);
-        setCard(result);
-        setTemplate(result.template);
+        const cardDoc = await getDoc(doc(db, "cards", cardId));
+        if (cardDoc.exists()) {
+          const cardData = { id: cardDoc.id, ...cardDoc.data() };
+          setCard(cardData);
+          
+          // If the card has a templateId, fetch the template data
+          if (cardData.templateId) {
+            const templateDoc = await getDoc(doc(db, "templates", cardData.templateId));
+            if (templateDoc.exists()) {
+              setTemplate({ id: templateDoc.id, ...templateDoc.data() });
+            }
+          }
+        } else {
+          console.error("Card not found");
+        }
       } catch (error) {
         console.error("❌ Failed to fetch card:", error);
       }
@@ -38,12 +48,12 @@ const OverviewPage = () => {
       </div>
     );
 
-  // Use the template's ThumbnailUrl as the cover image
+  // Use the template's thumbnail or a placeholder
   const templateImage =
-    template?.thumbnail_url ||
+    template?.thumbnailUrl || template?.ThumbnailUrl ||
     "https://via.placeholder.com/300x400?text=Card+Cover";
   const recipientImage =
-    card.recipient_image || "https://via.placeholder.com/60x60?text=User";
+    card.recipientImageUrl || "https://via.placeholder.com/60x60?text=User";
 
   const handleShareClick = () => {
     setShowPremiumModal(true);
@@ -67,7 +77,7 @@ const OverviewPage = () => {
             navigate("/", {
               state: {
                 openEditModal: true,
-                templateId: card.template_id,
+                templateId: card.templateId,
                 cardData: card,
               },
             })
@@ -98,7 +108,7 @@ const OverviewPage = () => {
             className="overview-sub"
             style={{ color: "#000", fontWeight: 400, fontSize: "1em" }}
           >
-            Click to {isOpen ? "close" : "open"}
+            {isOpen ? "Click X to close card" : "Click card to open"}
           </span>
         </div>
       </div>
@@ -139,9 +149,9 @@ const OverviewPage = () => {
             className="overview-book"
             style={{
               width: 328,
-              height: 583,
-              maxWidth: "100%",
-              maxHeight: "100%",
+              height: 480,
+              maxWidth: "95vw",
+              maxHeight: "60vh",
             }}
           >
             <button className="modal-close" onClick={() => setIsOpen(false)}>
@@ -154,10 +164,12 @@ const OverviewPage = () => {
                 className="overview-avatar"
               />
               <span className="overview-recipient">
-                To:{card.recipientName}
+                To: {card.name || card.recipientName}
               </span>
             </div>
-            <div className="overview-message">{card.message}</div>
+            <div className="overview-message" style={{ width: '100%', maxWidth: '100%' }}>
+              {card.message}
+            </div>
             {card.videoUrl && (
               <div className="overview-video">
                 <video
@@ -166,7 +178,7 @@ const OverviewPage = () => {
                   poster={templateImage}
                   style={{ borderRadius: 12, background: "#ccc" }}
                 >
-                  <source src={card.video} type="video/mp4" />
+                  <source src={card.videoUrl} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               </div>

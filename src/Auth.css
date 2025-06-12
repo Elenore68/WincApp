@@ -514,6 +514,8 @@ code {
   padding-bottom: 80px;
   background-color: #f0f2f5;
   min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
 }
 
 .main-header {
@@ -631,7 +633,6 @@ code {
   width: 100%;
   max-width: 370px;
   max-height: 90vh;
-  overflow-y: auto;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -639,21 +640,25 @@ code {
 }
 
 /* Custom scrollbar for modal */
-.modal-content::-webkit-scrollbar {
+.modal-content::-webkit-scrollbar,
+.modal-content > div::-webkit-scrollbar {
   width: 6px;
 }
 
-.modal-content::-webkit-scrollbar-track {
+.modal-content::-webkit-scrollbar-track,
+.modal-content > div::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 3px;
 }
 
-.modal-content::-webkit-scrollbar-thumb {
+.modal-content::-webkit-scrollbar-thumb,
+.modal-content > div::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 3px;
 }
 
-.modal-content::-webkit-scrollbar-thumb:hover {
+.modal-content::-webkit-scrollbar-thumb:hover,
+.modal-content > div::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
 
@@ -662,10 +667,17 @@ code {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e9ecef;
+  position: relative;
+}
+
 .modal-close {
-  position: absolute;
-  top: 18px;
-  right: 18px;
   background: none;
   border: none;
   font-size: 2rem;
@@ -673,6 +685,9 @@ code {
   cursor: pointer;
   z-index: 10;
   transition: color 0.2s;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
 }
 .modal-close:hover {
   color: #715AFF;
@@ -713,6 +728,80 @@ code {
   background: #6a0dad;
 }
 
+/* Upload Preview Styles */
+.upload-section {
+  margin-bottom: 20px;
+}
+
+.upload-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.preview-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.preview-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.preview-video {
+  width: 120px;
+  height: 80px;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.preview-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.file-name {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9em;
+  word-break: break-word;
+}
+
+.file-size {
+  color: #666;
+  font-size: 0.8em;
+}
+
+.preview-actions {
+  display: flex;
+  align-items: center;
+}
+
+.delete-icon-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.delete-icon-btn:hover {
+  background-color: #fee;
+}
+
 @media (max-width: 480px) {
   .modal-overlay {
     padding: 10px;
@@ -743,7 +832,8 @@ code {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 30px 0 20px 0;
+  margin: 20px 0 20px 0;
+  min-height: 0;
 }
 
 .overview-cover {
@@ -777,6 +867,8 @@ code {
   flex-direction: column;
   align-items: flex-start;
   animation: bookOpen 0.3s cubic-bezier(.4,0,.2,1);
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 @keyframes bookOpen {
   from { opacity: 0; transform: scale(0.97) translateY(30px); }
@@ -796,7 +888,7 @@ code {
   object-fit: cover;
   border: 2px solid #715AFF;
 }
-.overview-recipient {
+.overview-receiver {
   font-weight: 600;
   color: #333;
   font-size: 1.08em;
@@ -808,6 +900,10 @@ code {
   margin-bottom: 18px;
   margin-top: 6px;
   line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  white-space: pre-wrap;
 }
 
 .overview-video {
@@ -833,133 +929,11 @@ code {
     max-height: 70vw;
   }
   .overview-book {
-    width: 98vw;
+    width: 95vw;
+    max-height: 55vh;
     padding: 18px 4vw 18px 4vw;
   }
-}
-
-/* Upload Preview Styles */
-.upload-section {
-  margin-bottom: 20px;
-}
-
-.upload-preview {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(255, 255, 255, 0.8);
-  border: 2px solid #715AFF;
-  border-radius: 12px;
-  padding: 12px;
-  box-shadow: 0 2px 8px rgba(113, 90, 255, 0.1);
-  transition: all 0.3s ease;
-}
-
-.upload-preview:hover {
-  box-shadow: 0 4px 12px rgba(113, 90, 255, 0.15);
-  transform: translateY(-1px);
-}
-
-.preview-content {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  gap: 12px;
-}
-
-.preview-image {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 2px solid #715AFF;
-}
-
-.preview-video {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 2px solid #715AFF;
-  background: #f0f0f0;
-}
-
-.preview-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.file-name {
-  font-weight: 600;
-  color: #333;
-  font-size: 0.9em;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.file-size {
-  color: #666;
-  font-size: 0.8em;
-}
-
-.preview-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.delete-icon-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: box-shadow 0.2s;
-}
-.delete-icon-btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px #EF4444;
-}
-.delete-icon-btn svg {
-  color: #EF4444;
-  font-size: 24px;
-  transition: color 0.2s;
-}
-.delete-icon-btn:hover svg {
-  color: #b91c1c;
-}
-
-/* Responsive adjustments for upload previews */
-@media (max-width: 480px) {
-  .upload-preview {
-    padding: 10px;
-    flex-direction: column;
-    gap: 12px;
-    align-items: stretch;
-  }
-  
-  .preview-content {
-    justify-content: center;
-  }
-  
-  .preview-actions {
-    justify-content: center;
-  }
-  
-  .file-name {
-    max-width: 150px;
-    text-align: center;
-  }
-  
-  .preview-image,
-  .preview-video {
-    width: 50px;
-    height: 50px;
+  .overview-content {
+    margin: 10px 0 20px 0;
   }
 }
