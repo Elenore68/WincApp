@@ -80,7 +80,7 @@ const ProfilePage = () => {
             <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"><FaXTwitter size={28} style={{ color: '#000' }} /></a>
           </div>
           {/* Logout */}
-          <div style={{ textAlign: 'center', marginTop: 10 }}>
+          <div style={{ textAlign: 'center', marginTop: 10, paddingBottom: 100 }}>
             <Button onClick={handleLogout} style={{ color: '#F44', background: 'none', fontWeight: 600, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
               <span style={{ fontSize: 20 }}>↩</span> Logout
             </Button>

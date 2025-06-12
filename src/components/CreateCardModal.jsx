@@ -121,9 +121,7 @@ const CreateCardModal = ({ open, onClose, template, cardData }) => {
   //     alert('Error creating card: ' + err.message);
   //   }
   // };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
+  const handleSubmit = async () => {
     // Validate template exists
     if (!template || !template.id) {
       alert('Please select a template first');
@@ -184,8 +182,15 @@ const CreateCardModal = ({ open, onClose, template, cardData }) => {
             &times;
           </button>
         </div>
-        <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
-          <form onSubmit={handleSubmit}>
+        <div style={{ 
+          flex: 1, 
+          overflowY: 'auto', 
+          paddingRight: '4px', 
+          marginBottom: '16px',
+          scrollBehavior: 'smooth',
+          maxHeight: 'calc(90vh - 140px)' // Ensure it doesn't exceed viewport
+        }}>
+          <div style={{ paddingBottom: '8px' }}>
               <Input
                 label="Sender Name"
                 id="senderName"
@@ -367,11 +372,16 @@ const CreateCardModal = ({ open, onClose, template, cardData }) => {
                   </Button>
                 )}
               </div>
-
-              <Button type="submit" disabled={loading} style={{ marginTop: 16 }}>
-                Next
-              </Button>
-            </form>
+            </div>
+          </div>
+          <div style={{ flexShrink: 0, paddingTop: '16px', borderTop: '1px solid #e9ecef' }}>
+            <Button 
+              onClick={handleSubmit} 
+              disabled={loading} 
+              style={{ width: '100%', margin: 0 }}
+            >
+              {loading ? 'Creating...' : 'Next'}
+            </Button>
           </div>
         </div>
       </div>

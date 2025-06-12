@@ -105,8 +105,8 @@ const Main = () => {
         <img src={Logo} alt="Winc Logo" className="main-logo" />
         <div className="animated-tutorial-placeholder">
           {/* Placeholder for animated images/tutorial */}
-          <p>Choose a beautiful template</p>
-          <p>(from a variety of themes)</p>
+          <p>Create a Card Only They Can Open</p>
+          <p>Send unforgettable messages sealed with emotion, unlocked by your face alone.</p>
           <div className="animated-images-row" style={{ display: 'flex', gap: 16, justifyContent: 'center', alignItems: 'center' }}>
              <img src={HeroImage} alt="Hero Visual" style={{ borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.08)', maxWidth: 300, width: '100%', height: 'auto', display: 'block' }} />
           </div>

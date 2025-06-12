@@ -242,173 +242,179 @@ const MyCardsPage = () => {
       {/* Edit Modal */}
       {showEditModal && editCard && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ position: 'relative' }}>
-            <button
-              className="modal-close"
-              onClick={() => setShowEditModal(false)}
-              style={{
-                position: 'absolute',
-                top: 12,
-                right: 12,
-                background: 'none',
-                border: 'none',
-                fontSize: 28,
-                color: '#888',
-                cursor: 'pointer'
-              }}
-              aria-label="Close"
-            >
-              &times;
-            </button>
-            <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 10, marginTop: 24 }}>Edit Card</div>
-            <form onSubmit={e => { e.preventDefault(); handleSaveEdit(editCard); }}>
-              <input
-                className="auth-input"
-                style={{ marginBottom: 10 }}
-                value={editCard.senderName}
-                onChange={e => setEditCard({ ...editCard, senderName: e.target.value })}
-                placeholder="Sender Name"
-              />
-              <input
-                className="auth-input"
-                style={{ marginBottom: 10 }}
-                value={editCard.name || ''}
-                onChange={e => setEditCard({ ...editCard, name: e.target.value })}
-                placeholder="Recipient"
-              />
-              <textarea
-                className="auth-input"
-                style={{ marginBottom: 10, minHeight: 60 }}
-                value={editCard.message}
-                onChange={e => setEditCard({ ...editCard, message: e.target.value })}
-                placeholder="Message"
-              />
-              {/* Image upload */}
-              <div className="upload-section">
-                <Button type="button" className="upload-btn" onClick={() => imageInputRef.current.click()}>
-                  Change Image
-                </Button>
+          <div className="modal-content" style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+            <div className="modal-header" style={{ flexShrink: 0 }}>
+              <h3 style={{ margin: 0, color: '#715AFF', fontSize: '1.2em', fontWeight: 600 }}>
+                Edit Card
+              </h3>
+              <button className="modal-close" onClick={() => setShowEditModal(false)}>
+                &times;
+              </button>
+            </div>
+            <div style={{ 
+              flex: 1, 
+              overflowY: 'auto', 
+              paddingRight: '4px', 
+              marginBottom: '16px',
+              scrollBehavior: 'smooth',
+              maxHeight: 'calc(90vh - 140px)'
+            }}>
+              <div style={{ paddingBottom: '8px' }}>
                 <input
-                  type="file"
-                  accept="image/*"
-                  ref={imageInputRef}
-                  style={{ display: 'none' }}
-                  onChange={handleImageChange}
+                  className="auth-input"
+                  style={{ marginBottom: 10 }}
+                  value={editCard.senderName}
+                  onChange={e => setEditCard({ ...editCard, senderName: e.target.value })}
+                  placeholder="Sender Name"
                 />
-                {newImage ? (
-                  <div className="upload-preview">
-                    <div className="preview-content">
-                      <img 
-                        src={URL.createObjectURL(newImage)} 
-                        alt="New Image" 
-                        className="preview-image"
-                      />
-                      <div className="preview-info">
-                        <span className="file-name">{newImage.name}</span>
-                        <span className="file-size">{(newImage.size / 1024 / 1024).toFixed(2)} MB</span>
-                      </div>
-                    </div>
-                    <div className="preview-actions">
-                      <button
-                        type="button"
-                        className="delete-icon-btn"
-                        onClick={() => setNewImage(null)}
-                        title="Remove new image"
-                      >
-                        <MdOutlineDelete size={24} style={{ color: '#EF4444' }} />
-                      </button>
-                    </div>
-                  </div>
-                ) : editCard.recipientPhotoUrl && !removeImage ? (
-                  <div className="upload-preview">
-                    <div className="preview-content">
-                      <img 
-                        src={editCard.recipientPhotoUrl} 
-                        alt="Current Image" 
-                        className="preview-image"
-                      />
-                      <div className="preview-info">
-                        <span className="file-name">Current image</span>
-                        <span className="file-size">From previous upload</span>
-                      </div>
-                    </div>
-                    <div className="preview-actions">
-                      <button
-                        type="button"
-                        className="delete-icon-btn"
-                        onClick={() => setRemoveImage(true)}
-                        title="Remove current image"
-                      >
-                        <MdOutlineDelete size={24} style={{ color: '#EF4444' }} />
-                      </button>
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-              {/* Video upload */}
-              <div className="upload-section">
-                <Button type="button" className="upload-btn outline" onClick={() => videoInputRef.current.click()}>
-                  Upload Video
-                </Button>
                 <input
-                  type="file"
-                  accept="video/*"
-                  ref={videoInputRef}
-                  style={{ display: 'none' }}
-                  onChange={handleVideoChange}
+                  className="auth-input"
+                  style={{ marginBottom: 10 }}
+                  value={editCard.name || ''}
+                  onChange={e => setEditCard({ ...editCard, name: e.target.value })}
+                  placeholder="Recipient"
                 />
-                {newVideo ? (
-                  <div className="upload-preview">
-                    <div className="preview-content">
-                      <video 
-                        src={URL.createObjectURL(newVideo)} 
-                        className="preview-video"
-                        controls
-                      />
-                      <div className="preview-info">
-                        <span className="file-name">{newVideo.name}</span>
-                        <span className="file-size">{(newVideo.size / 1024 / 1024).toFixed(2)} MB</span>
+                <textarea
+                  className="auth-input"
+                  style={{ marginBottom: 10, minHeight: 60 }}
+                  value={editCard.message}
+                  onChange={e => setEditCard({ ...editCard, message: e.target.value })}
+                  placeholder="Message"
+                />
+                {/* Image upload */}
+                <div className="upload-section">
+                  <Button type="button" className="upload-btn" onClick={() => imageInputRef.current.click()}>
+                    Change Image
+                  </Button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={imageInputRef}
+                    style={{ display: 'none' }}
+                    onChange={handleImageChange}
+                  />
+                  {newImage ? (
+                    <div className="upload-preview">
+                      <div className="preview-content">
+                        <img 
+                          src={URL.createObjectURL(newImage)} 
+                          alt="New Image" 
+                          className="preview-image"
+                        />
+                        <div className="preview-info">
+                          <span className="file-name">{newImage.name}</span>
+                          <span className="file-size">{(newImage.size / 1024 / 1024).toFixed(2)} MB</span>
+                        </div>
+                      </div>
+                      <div className="preview-actions">
+                        <button
+                          type="button"
+                          className="delete-icon-btn"
+                          onClick={() => setNewImage(null)}
+                          title="Remove new image"
+                        >
+                          <MdOutlineDelete size={24} style={{ color: '#EF4444' }} />
+                        </button>
                       </div>
                     </div>
-                    <div className="preview-actions">
-                      <button
-                        type="button"
-                        className="delete-icon-btn"
-                        onClick={() => setNewVideo(null)}
-                        title="Remove new video"
-                      >
-                        <MdOutlineDelete size={24} style={{ color: '#EF4444' }} />
-                      </button>
-                    </div>
-                  </div>
-                ) : editCard.videoUrl && !removeVideo ? (
-                  <div className="upload-preview">
-                    <div className="preview-content">
-                      <video 
-                        src={editCard.videoUrl} 
-                        className="preview-video"
-                        controls
-                      />
-                      <div className="preview-info">
-                        <span className="file-name">Current video</span>
-                        <span className="file-size">From previous upload</span>
+                  ) : editCard.recipientPhotoUrl && !removeImage ? (
+                    <div className="upload-preview">
+                      <div className="preview-content">
+                        <img 
+                          src={editCard.recipientPhotoUrl} 
+                          alt="Current Image" 
+                          className="preview-image"
+                        />
+                        <div className="preview-info">
+                          <span className="file-name">Current image</span>
+                          <span className="file-size">From previous upload</span>
+                        </div>
+                      </div>
+                      <div className="preview-actions">
+                        <button
+                          type="button"
+                          className="delete-icon-btn"
+                          onClick={() => setRemoveImage(true)}
+                          title="Remove current image"
+                        >
+                          <MdOutlineDelete size={24} style={{ color: '#EF4444' }} />
+                        </button>
                       </div>
                     </div>
-                    <div className="preview-actions">
-                      <button
-                        type="button"
-                        className="delete-icon-btn"
-                        onClick={() => setRemoveVideo(true)}
-                        title="Remove current video"
-                      >
-                        <MdOutlineDelete size={24} style={{ color: '#EF4444' }} />
-                      </button>
+                  ) : null}
+                </div>
+                {/* Video upload */}
+                <div className="upload-section">
+                  <Button type="button" className="upload-btn outline" onClick={() => videoInputRef.current.click()}>
+                    Upload Video
+                  </Button>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    ref={videoInputRef}
+                    style={{ display: 'none' }}
+                    onChange={handleVideoChange}
+                  />
+                  {newVideo ? (
+                    <div className="upload-preview">
+                      <div className="preview-content">
+                        <video 
+                          src={URL.createObjectURL(newVideo)} 
+                          className="preview-video"
+                          controls
+                        />
+                        <div className="preview-info">
+                          <span className="file-name">{newVideo.name}</span>
+                          <span className="file-size">{(newVideo.size / 1024 / 1024).toFixed(2)} MB</span>
+                        </div>
+                      </div>
+                      <div className="preview-actions">
+                        <button
+                          type="button"
+                          className="delete-icon-btn"
+                          onClick={() => setNewVideo(null)}
+                          title="Remove new video"
+                        >
+                          <MdOutlineDelete size={24} style={{ color: '#EF4444' }} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ) : null}
+                  ) : editCard.videoUrl && !removeVideo ? (
+                    <div className="upload-preview">
+                      <div className="preview-content">
+                        <video 
+                          src={editCard.videoUrl} 
+                          className="preview-video"
+                          controls
+                        />
+                        <div className="preview-info">
+                          <span className="file-name">Current video</span>
+                          <span className="file-size">From previous upload</span>
+                        </div>
+                      </div>
+                      <div className="preview-actions">
+                        <button
+                          type="button"
+                          className="delete-icon-btn"
+                          onClick={() => setRemoveVideo(true)}
+                          title="Remove current video"
+                        >
+                          <MdOutlineDelete size={24} style={{ color: '#EF4444' }} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
               </div>
-              <Button type="submit" style={{ marginTop: 10 }}>Save Changes</Button>
-            </form>
+            </div>
+            <div style={{ flexShrink: 0, paddingTop: '16px', borderTop: '1px solid #e9ecef' }}>
+              <Button 
+                onClick={() => handleSaveEdit(editCard)} 
+                style={{ width: '100%', margin: 0 }}
+              >
+                Save Changes
+              </Button>
+            </div>
           </div>
         </div>
       )}
