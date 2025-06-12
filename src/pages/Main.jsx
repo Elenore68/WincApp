@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { collection, getDocs } from "firebase/firestore";
-import { db } from '../firebaseConfig';
-import Navbar from '../components/Navbar';
-import SearchBar from '../components/SearchBar';
-import CategoryFilter from '../components/CategoryFilter';
-import TemplateCard from '../components/TemplateCard';
-import CreateCardModal from '../components/CreateCardModal';
-import Logo from '../assets/logo.png';
-import HeroImage from '../assets/hero.jpg';
-import '../Auth.css'; // Reusing Auth.css for general app styles
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+// import { collection, getDocs } from "firebase/firestore";
+// import { db } from "../firebaseConfig";
+import Navbar from "../components/Navbar";
+import SearchBar from "../components/SearchBar";
+import CategoryFilter from "../components/CategoryFilter";
+import TemplateCard from "../components/TemplateCard";
+import CreateCardModal from "../components/CreateCardModal";
+import Logo from "../assets/logo.png";
+import HeroImage from "../assets/hero.jpg";
+import "../Auth.css"; // Reusing Auth.css for general app styles
+import { useLocation } from "react-router-dom";
+import { fetchMainPageData } from "../api/mainPage";
 
 const Main = () => {
   const location = useLocation();
   const [templates, setTemplates] = useState([]);
   const [filteredTemplates, setFilteredTemplates] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [editCardData, setEditCardData] = useState(null);
@@ -30,34 +31,63 @@ const Main = () => {
     }
   }, [location.state]);
 
+  // useEffect(() => {
+  //   const fetchTemplates = async () => {
+  //     const templatesCollectionRef = collection(db, "templates");
+  //     const templateSnapshot = await getDocs(templatesCollectionRef);
+  //     const templateList = templateSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  //     setTemplates(templateList);
+  //     setFilteredTemplates(templateList); // Initialize filtered templates with all templates
+  //   };
+  //   const fetchCategories = async () => {
+  //     const categoriesCollectionRef = collection(db, "categories");
+  //     const categorySnapshot = await getDocs(categoriesCollectionRef);
+  //     const categoryList = categorySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  //     setCategories(categoryList);
+  //   };
+  //   fetchTemplates();
+  //   fetchCategories();
+  // }, []);
+
   useEffect(() => {
-    const fetchTemplates = async () => {
-      const templatesCollectionRef = collection(db, "templates");
-      const templateSnapshot = await getDocs(templatesCollectionRef);
-      const templateList = templateSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setTemplates(templateList);
-      setFilteredTemplates(templateList); // Initialize filtered templates with all templates
+    const fetchData = async () => {
+      try {
+        const { templates, categories } = await fetchMainPageData();
+
+        // Flatten template objects to have consistent keys for rendering
+        const flatTemplates = templates.map((item) => ({
+          ...item.template,
+          CategoryName: item.category.name,
+          CategoryId: item.template.category_id,
+          ThumbnailUrl: item.template.thumbnail_url,
+          Name: item.template.name,
+          Description: item.template.description,
+          Tags: item.template.tags,
+        }));
+
+        setTemplates(flatTemplates);
+        setFilteredTemplates(flatTemplates);
+        setCategories(categories);
+      } catch (err) {
+        console.error("❌ Failed to load data:", err);
+      }
     };
-    const fetchCategories = async () => {
-      const categoriesCollectionRef = collection(db, "categories");
-      const categorySnapshot = await getDocs(categoriesCollectionRef);
-      const categoryList = categorySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setCategories(categoryList);
-    };
-    fetchTemplates();
-    fetchCategories();
+
+    fetchData();
   }, []);
 
   useEffect(() => {
     let currentTemplates = templates;
 
     // Filter by category
-    if (selectedCategory !== 'All') {
+    if (selectedCategory !== "All") {
       // Find the selected category object by name
-      const selectedCategoryObj = categories.find(cat => cat.Name === selectedCategory);
+      const selectedCategoryObj = categories.find(
+        (cat) => cat.name === selectedCategory
+      );
       if (selectedCategoryObj) {
-        currentTemplates = currentTemplates.filter(template => 
-          template.CategoryId === selectedCategoryObj.id
+        currentTemplates = currentTemplates.filter(
+          (template) => template.CategoryId === selectedCategoryObj.id
         );
       } else {
         currentTemplates = [];
@@ -67,10 +97,16 @@ const Main = () => {
     // Filter by search term
     if (searchTerm) {
       const lowercasedSearchTerm = searchTerm.toLowerCase();
-      currentTemplates = currentTemplates.filter(template =>
-        (template.Name && template.Name.toLowerCase().includes(lowercasedSearchTerm)) ||
-        (template.Tags && template.Tags.some(tag => tag.toLowerCase().includes(lowercasedSearchTerm))) ||
-        (template.Description && template.Description.toLowerCase().includes(lowercasedSearchTerm))
+      currentTemplates = currentTemplates.filter(
+        (template) =>
+          (template.Name &&
+            template.Name.toLowerCase().includes(lowercasedSearchTerm)) ||
+          (template.Tags &&
+            template.Tags.some((tag) =>
+              tag.toLowerCase().includes(lowercasedSearchTerm)
+            )) ||
+          (template.Description &&
+            template.Description.toLowerCase().includes(lowercasedSearchTerm))
       );
     }
 
@@ -99,15 +135,41 @@ const Main = () => {
           {/* Placeholder for animated images/tutorial */}
           <p>Choose a beautiful template</p>
           <p>(from a variety of themes)</p>
-          <div className="animated-images-row" style={{ display: 'flex', gap: 16, justifyContent: 'center', alignItems: 'center' }}>
-            <img src={HeroImage} alt="Main Visual" style={{ borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.08)', maxWidth: 300, width: '100%', height: 'auto', display: 'block' }} />
+          <div
+            className="animated-images-row"
+            style={{
+              display: "flex",
+              gap: 16,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <img
+              src={HeroImage}
+              alt="Main Visual"
+              style={{
+                borderRadius: 16,
+                boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                maxWidth: 300,
+                width: "100%",
+                height: "auto",
+                display: "block",
+              }}
+            />
           </div>
         </div>
       </header>
 
-      <SearchBar onSearch={handleSearch} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+      <SearchBar
+        onSearch={handleSearch}
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
 
-      <CategoryFilter onSelectCategory={handleSelectCategory} selectedCategory={selectedCategory} />
+      <CategoryFilter
+        onSelectCategory={handleSelectCategory}
+        selectedCategory={selectedCategory}
+      />
 
       <div className="special-card-prompt">
         <p>Looking for the perfect card? choose one below</p>
@@ -115,8 +177,8 @@ const Main = () => {
 
       <div className="templates-grid">
         {filteredTemplates
-          .filter(template => template.ThumbnailUrl)
-          .map(template => (
+          .filter((template) => template.ThumbnailUrl)
+          .map((template) => (
             <TemplateCard
               key={template.id}
               template={template}
@@ -133,7 +195,7 @@ const Main = () => {
       <CreateCardModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        templateId={selectedTemplateId}
+        template={templates.find((t) => t.id === selectedTemplateId)} // ✅ Correct way to get the full template object
         cardData={editCardData}
       />
     </div>
