@@ -32,13 +32,22 @@ const PremiumModal = ({ open, onClose, onJoin }) => {
           You must be a premium <b>Winc</b> Member<br />
           to access and share Ecards and Invites.
         </div>
-        <button
-          className="auth-btn"
-          style={{ background: '#715AFF', color: '#fff', borderRadius: 8, padding: '10px 30px', fontWeight: 600, fontSize: 18 }}
-          onClick={onJoin}
-        >
-          Join Now!
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%' }}>
+          <button
+            className="auth-btn"
+            style={{ background: '#715AFF', color: '#fff', borderRadius: 8, padding: '10px 30px', fontWeight: 600, fontSize: 18, width: '100%' }}
+            onClick={onJoin}
+          >
+            Sign In
+          </button>
+          <button
+            className="auth-btn"
+            style={{ background: '#fff', color: '#715AFF', border: '2px solid #715AFF', borderRadius: 8, padding: '10px 30px', fontWeight: 600, fontSize: 18, width: '100%' }}
+            onClick={() => onJoin('signup')}
+          >
+            Sign Up
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../firebaseConfig";
+import { db, auth } from "../firebaseConfig";
 import Button from "../components/Button";
 import PremiumModal from "../components/PremiumModal";
 import "../Auth.css";
@@ -56,13 +56,30 @@ const OverviewPage = () => {
     card.recipientImageUrl || "https://via.placeholder.com/60x60?text=User";
 
   const handleShareClick = () => {
-    setShowPremiumModal(true);
+    const user = auth.currentUser;
+    if (user) {
+      // Authenticated user - go directly to checkout
+      navigate('/checkout', {
+        state: { 
+          cardId, 
+          templateImage: template?.ThumbnailUrl 
+        }
+      });
+    } else {
+      // Guest user - show premium modal
+      setShowPremiumModal(true);
+    }
   };
 
-  const handleJoinNow = () => {
+  const handleJoinNow = (action = 'signin') => {
     setShowPremiumModal(false);
-    navigate("/signin", {
-      state: { cardId, templateImage: template?.ThumbnailUrl },
+    const targetPath = action === 'signup' ? '/signup' : '/signin';
+    navigate(targetPath, {
+      state: { 
+        cardId, 
+        templateImage: template?.ThumbnailUrl,
+        returnToCheckout: true 
+      },
     });
   };
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import AuthFormContainer from "../components/AuthFormContainer";
 import Input from "../components/Input";
 import Button from "../components/Button";
@@ -17,6 +17,7 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -27,8 +28,17 @@ const SignUp = () => {
       await updateProfile(userCredential.user, {
         displayName: name
       });
-      alert("✅ Account created successfully! Please sign in.");
-      navigate("/signin");
+      alert("✅ Account created successfully!");
+      if (location.state && location.state.cardId) {
+        navigate("/checkout", {
+          state: {
+            cardId: location.state.cardId,
+            templateImage: location.state.templateImage,
+          },
+        });
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -40,7 +50,16 @@ const SignUp = () => {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       alert("Signed up with Google successfully!");
-      navigate("/");
+      if (location.state && location.state.cardId) {
+        navigate("/checkout", {
+          state: {
+            cardId: location.state.cardId,
+            templateImage: location.state.templateImage,
+          },
+        });
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -52,7 +71,16 @@ const SignUp = () => {
       const provider = new OAuthProvider("apple.com");
       await signInWithPopup(auth, provider);
       alert("Signed up with Apple successfully!");
-      navigate("/");
+      if (location.state && location.state.cardId) {
+        navigate("/checkout", {
+          state: {
+            cardId: location.state.cardId,
+            templateImage: location.state.templateImage,
+          },
+        });
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       setError(err.message);
     }

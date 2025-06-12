@@ -158,9 +158,13 @@ const CreateCardModal = ({ open, onClose, template, cardData }) => {
         videoUrl,
         createdAt: new Date(),
         userId: user ? user.uid : null,
+        isGuestCard: !user, // Mark as guest card if no user
       });
+      
       setLoading(false);
       onClose();
+      
+      // Always go to overview page after card creation (simplified guest flow)
       navigate(`/overview/${cardRef.id}`);
     } catch (err) {
       console.error("❌ Failed to create card:", err);

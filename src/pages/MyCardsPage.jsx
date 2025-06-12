@@ -32,12 +32,15 @@ const MyCardsPage = () => {
   const [removeImage, setRemoveImage] = useState(false);
   const [removeVideo, setRemoveVideo] = useState(false);
   const [templateThumbnails, setTemplateThumbnails] = useState({});
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [showCardDetail, setShowCardDetail] = useState(false);
 
   // Auth check and fetch cards
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       if (!u) {
-        window.location.href = '/signin';
+        navigate('/signin');
+        return;
       } else {
         // Fetch cards for this user
         const q = query(collection(db, 'cards'), where('userId', '==', u.uid));
@@ -164,7 +167,7 @@ const MyCardsPage = () => {
     <div className="main-page-container">
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '30px 0 10px 0' }}>
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/')}
           style={{
             background: 'none',
             border: 'none',
@@ -173,7 +176,7 @@ const MyCardsPage = () => {
             color: '#222',
             marginRight: 8
           }}
-          aria-label="Back"
+          aria-label="Back to Home"
         >
           <IoIosArrowBack />
         </button>
@@ -185,15 +188,43 @@ const MyCardsPage = () => {
           <div key={card.id} className="template-card" style={{ position: 'relative', width: 168, height: 210, background: 'none', boxShadow: 'none', margin: 0, padding: 0 }}
             onClick={(e) => {
               e.stopPropagation();
-              setShowMenuFor(showMenuFor === card.id ? null : card.id);
+              setSelectedCard(card);
+              setShowCardDetail(true);
             }}
           >
             <TemplateCard template={{ ThumbnailUrl: templateThumbnails[card.templateId] || '', Name: card.receiverName }} />
-            {card.message && <p className="template-card-desc">{card.message}</p>}
+            {/* Message is hidden in the card grid - only shown when card is opened */}
+            
+            {/* Card menu button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowMenuFor(showMenuFor === card.id ? null : card.id);
+              }}
+              style={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                background: 'rgba(255, 255, 255, 0.9)',
+                border: 'none',
+                borderRadius: '50%',
+                width: 32,
+                height: 32,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: 18,
+                color: '#666',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                zIndex: 5
+              }}
+              title="More options"
+            >
+              ⋯
+            </button>
+            
             {/* Video is hidden in the card grid */}
-            {/* {card.videoUrl && (
-              <video src={card.videoUrl} controls width={150} style={{ marginTop: 8, borderRadius: 8 }} />
-            )} */}
             {/* Card menu */}
             {showMenuFor === card.id && (
               <div style={{ position: 'absolute', top: 40, right: 10, zIndex: 10 }}>
@@ -381,6 +412,108 @@ const MyCardsPage = () => {
           </div>
         </div>
       )}
+      {/* Card Detail Modal */}
+      {showCardDetail && selectedCard && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '400px', textAlign: 'center' }}>
+            <div className="modal-header">
+              <h3 style={{ margin: 0, color: '#715AFF', fontSize: '1.2em', fontWeight: 600 }}>
+                Card Details
+              </h3>
+              <button className="modal-close" onClick={() => setShowCardDetail(false)}>
+                &times;
+              </button>
+            </div>
+            <div style={{ padding: '0 0 20px 0' }}>
+              {templateThumbnails[selectedCard.templateId] && (
+                <img 
+                  src={templateThumbnails[selectedCard.templateId]} 
+                  alt="Card Template" 
+                  style={{ 
+                    width: '200px', 
+                    height: '280px', 
+                    objectFit: 'cover', 
+                    borderRadius: '12px', 
+                    marginBottom: '20px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                  }} 
+                />
+              )}
+              <div style={{ textAlign: 'left', background: '#f8f9fa', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
+                <div style={{ marginBottom: '12px' }}>
+                  <strong style={{ color: '#715AFF' }}>From:</strong> {selectedCard.senderName}
+                </div>
+                <div style={{ marginBottom: '12px' }}>
+                  <strong style={{ color: '#715AFF' }}>To:</strong> {selectedCard.name || selectedCard.recipientName}
+                </div>
+                {selectedCard.message && (
+                  <div>
+                    <strong style={{ color: '#715AFF' }}>Message:</strong>
+                    <p style={{ margin: '8px 0 0 0', lineHeight: '1.5', color: '#444' }}>
+                      {selectedCard.message}
+                    </p>
+                  </div>
+                )}
+              </div>
+              {selectedCard.videoUrl && (
+                <div style={{ marginBottom: '16px' }}>
+                  <video 
+                    src={selectedCard.videoUrl} 
+                    controls 
+                    style={{ 
+                      width: '100%', 
+                      maxWidth: '300px', 
+                      borderRadius: '8px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                    }} 
+                  />
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                <button
+                  className="auth-btn"
+                  style={{ 
+                    background: '#715AFF', 
+                    color: '#fff', 
+                    borderRadius: '8px', 
+                    padding: '10px 20px', 
+                    fontWeight: 600, 
+                    fontSize: '14px',
+                    border: 'none',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    setShowCardDetail(false);
+                    handleEdit(selectedCard);
+                  }}
+                >
+                  Edit
+                </button>
+                <button
+                  className="auth-btn"
+                  style={{ 
+                    background: '#fff', 
+                    color: '#715AFF', 
+                    border: '2px solid #715AFF',
+                    borderRadius: '8px', 
+                    padding: '10px 20px', 
+                    fontWeight: 600, 
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    setShowCardDetail(false);
+                    handleShare(selectedCard.id);
+                  }}
+                >
+                  Share
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Share Modal */}
       <ShareLinkModal open={showShareModal} onClose={() => setShowShareModal(false)} cardLink={shareLink} />
     </div>
