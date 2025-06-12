@@ -619,6 +619,8 @@ code {
   align-items: center;
   justify-content: center;
   z-index: 2000;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .modal-content {
@@ -628,10 +630,31 @@ code {
   padding: 36px 28px 28px 28px;
   width: 100%;
   max-width: 370px;
+  max-height: 90vh;
+  overflow-y: auto;
   position: relative;
   display: flex;
   flex-direction: column;
   animation: modalIn 0.2s cubic-bezier(.4,0,.2,1);
+}
+
+/* Custom scrollbar for modal */
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 @keyframes modalIn {
@@ -691,8 +714,13 @@ code {
 }
 
 @media (max-width: 480px) {
+  .modal-overlay {
+    padding: 10px;
+  }
+  
   .modal-content {
     max-width: 98vw;
+    max-height: 95vh;
     padding: 18px 6vw 18px 6vw;
   }
 }
