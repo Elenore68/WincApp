@@ -43,7 +43,7 @@ const OverviewPage = () => {
 
   if (!card)
     return (
-      <div className="main-page-container">
+      <div className="overview-page-container">
         <div style={{ textAlign: "center", marginTop: 60 }}>Loading...</div>
       </div>
     );
@@ -84,16 +84,24 @@ const OverviewPage = () => {
   };
 
   return (
-    <div className="main-page-container">
+    <div className="overview-page-container" style={{ 
+      height: '100vh', 
+      overflow: 'hidden', 
+      display: 'flex', 
+      flexDirection: 'column' 
+    }}>
       <div
         className="overview-header"
         style={{ 
           display: "flex", 
           alignItems: "center", 
-          gap: 10,
+          padding: "20px 24px 16px 24px",
+          background: "#ffffff",
+          borderBottom: "1px solid #f0f0f0",
           position: "sticky",
           top: 0,
-          zIndex: 100
+          zIndex: 10,
+          flexShrink: 0
         }}
       >
         <button
@@ -110,9 +118,16 @@ const OverviewPage = () => {
             background: "none",
             border: "none",
             cursor: "pointer",
-            fontSize: 28,
+            fontSize: 24,
             color: "#715AFF",
-            marginRight: 8,
+            padding: "8px",
+            marginRight: "12px",
+            borderRadius: "8px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minWidth: "40px",
+            minHeight: "40px"
           }}
           aria-label="Back"
         >
@@ -123,20 +138,41 @@ const OverviewPage = () => {
             display: "flex",
             flexDirection: "column",
             alignItems: "flex-start",
+            flex: 1
           }}
         >
-          <h2 style={{ margin: 0, fontWeight: 700, color: "#000" }}>
+          <h2 style={{ 
+            margin: 0, 
+            fontWeight: 700, 
+            color: "#000",
+            fontSize: "24px",
+            lineHeight: "1.2"
+          }}>
             Overview
           </h2>
           <span
             className="overview-sub"
-            style={{ color: "#000", fontWeight: 400, fontSize: "1em" }}
+            style={{ 
+              color: "#666", 
+              fontWeight: 400, 
+              fontSize: "14px",
+              marginTop: "2px"
+            }}
           >
             {isOpen ? "Click X to close card" : "Click card to open"}
           </span>
         </div>
       </div>
-      <div className="overview-content">
+      
+      <div className="overview-content" style={{
+        flex: 1,
+        overflow: "auto",
+        padding: "24px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center"
+      }}>
         {!isOpen ? (
           <div
             className="overview-cover"
@@ -145,13 +181,14 @@ const OverviewPage = () => {
               width: 328,
               height: 583,
               maxWidth: "100%",
-              maxHeight: "100%",
+              maxHeight: "calc(100vh - 200px)",
               padding: 0,
               margin: 0,
               borderRadius: 20,
               overflow: "hidden",
               background: "#fff",
               boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+              cursor: "pointer"
             }}
           >
             <img
@@ -164,7 +201,7 @@ const OverviewPage = () => {
                 display: "block",
                 margin: 0,
                 padding: 0,
-                borderRadius: 0,
+                borderRadius: 20,
               }}
             />
           </div>
@@ -174,28 +211,60 @@ const OverviewPage = () => {
             style={{
               width: 328,
               height: 480,
-              maxWidth: "95vw",
-              maxHeight: "60vh",
+              maxWidth: "100%",
+              maxHeight: "calc(100vh - 200px)",
+              overflow: "auto",
+              background: "#fff",
+              borderRadius: 20,
+              boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+              padding: "20px",
+              position: "relative"
             }}
           >
-            <button className="modal-close" onClick={() => setIsOpen(false)}>
+            <button 
+              className="modal-close" 
+              onClick={() => setIsOpen(false)}
+              style={{
+                position: "absolute",
+                top: "12px",
+                right: "12px",
+                background: "rgba(0,0,0,0.1)",
+                border: "none",
+                borderRadius: "50%",
+                width: "32px",
+                height: "32px",
+                fontSize: "20px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#666"
+              }}
+            >
               &times;
             </button>
-            <div className="overview-book-header">
+            <div className="overview-book-header" style={{ marginBottom: "16px" }}>
               <img
                 src={recipientImage}
                 alt="Recipient"
                 className="overview-avatar"
+                style={{ width: "40px", height: "40px", borderRadius: "50%", marginRight: "12px" }}
               />
-              <span className="overview-recipient">
+              <span className="overview-recipient" style={{ fontSize: "16px", fontWeight: "500" }}>
                 To: {card.name || card.recipientName}
               </span>
             </div>
-            <div className="overview-message" style={{ width: '100%', maxWidth: '100%' }}>
+            <div className="overview-message" style={{ 
+              width: '100%', 
+              maxWidth: '100%',
+              fontSize: "14px",
+              lineHeight: "1.5",
+              color: "#333"
+            }}>
               {card.message}
             </div>
             {card.videoUrl && (
-              <div className="overview-video">
+              <div className="overview-video" style={{ marginTop: "16px" }}>
                 <video
                   width="100%"
                   controls
@@ -210,9 +279,18 @@ const OverviewPage = () => {
           </div>
         )}
       </div>
-      <Button className="overview-share-btn" onClick={handleShareClick}>
-        Share
-      </Button>
+      
+      <div style={{ 
+        padding: "20px 24px 24px 24px",
+        background: "#ffffff",
+        borderTop: "1px solid #f0f0f0",
+        flexShrink: 0
+      }}>
+        <Button className="overview-share-btn" onClick={handleShareClick}>
+          Share
+        </Button>
+      </div>
+      
       <PremiumModal
         open={showPremiumModal}
         onClose={() => setShowPremiumModal(false)}

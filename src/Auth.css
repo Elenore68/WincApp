@@ -447,8 +447,8 @@ code {
 .category-button:hover,
 .category-button.selected {
   background-color: transparent;
-  border: 1px solid #715AFF;
-  color: #715AFF;
+  border: 1px solid #7C3AED;
+  color: #7C3AED;
 }
 
 /* Responsive adjustments for smaller screens */
@@ -517,6 +517,14 @@ code {
 .main-page-container {
   padding-bottom: 80px;
   background-color: #f0f2f5;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.overview-page-container {
+  padding-bottom: 80px;
+  background-color: #ffffff;
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
@@ -984,11 +992,15 @@ code {
 
 @media (max-width: 480px) {
   .overview-header {
-    margin: 16px 0 12px 0;
-    padding: 12px 16px;
+    margin: 0 -16px 12px -16px;
+    padding: 16px 32px 12px 32px;
     position: sticky;
     top: 0;
     z-index: 100;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(12px);
+    border-radius: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
   
   .overview-cover-img {

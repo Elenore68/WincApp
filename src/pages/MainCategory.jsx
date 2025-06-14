@@ -29,7 +29,14 @@ const MainCategory = () => {
       let q = templatesCollectionRef;
 
       if (selectedCategory !== 'All') {
-        q = query(templatesCollectionRef, where("category", "==", selectedCategory));
+        const categoriesCollectionRef = collection(db, "categories");
+        const categorySnapshot = await getDocs(categoriesCollectionRef);
+        const categories = categorySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const selectedCategoryObj = categories.find(cat => cat.Name === selectedCategory);
+        
+        if (selectedCategoryObj) {
+          q = query(templatesCollectionRef, where("CategoryId", "==", selectedCategoryObj.id));
+        }
       }
 
       const templateSnapshot = await getDocs(q);
@@ -47,9 +54,9 @@ const MainCategory = () => {
     if (searchTerm) {
       const lowercasedSearchTerm = searchTerm.toLowerCase();
       currentTemplates = currentTemplates.filter(template =>
-        template.name.toLowerCase().includes(lowercasedSearchTerm) ||
-        (template.tags && template.tags.some(tag => tag.toLowerCase().includes(lowercasedSearchTerm))) ||
-        (template.description && template.description.toLowerCase().includes(lowercasedSearchTerm))
+        (template.Name && template.Name.toLowerCase().includes(lowercasedSearchTerm)) ||
+        (template.Tags && template.Tags.some(tag => tag.toLowerCase().includes(lowercasedSearchTerm))) ||
+        (template.Description && template.Description.toLowerCase().includes(lowercasedSearchTerm))
       );
     }
     setFilteredTemplates(currentTemplates);
@@ -82,7 +89,7 @@ const MainCategory = () => {
 
       <div className="templates-grid">
         {filteredTemplates
-          .filter(template => template.thumbnailUrl || template.imageUrl)
+          .filter(template => template.ThumbnailUrl || template.imageUrl)
           .map(template => (
             <TemplateCard
               key={template.id}

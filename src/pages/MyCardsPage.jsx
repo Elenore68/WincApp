@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs, query, where, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, updateDoc, getDoc, deleteDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 import CategoryFilter from '../components/CategoryFilter';
@@ -13,6 +13,8 @@ import '../Auth.css';
 import { CardActionMenu } from '../components/CardActionMenu';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import TemplateCard from '../components/TemplateCard';
+import { BiEditAlt } from 'react-icons/bi';
+import { FaRegShareFromSquare } from 'react-icons/fa6';
 
 const MyCardsPage = () => {
   const navigate = useNavigate();
@@ -20,7 +22,6 @@ const MyCardsPage = () => {
   const [cards, setCards] = useState([]);
   const [filteredCards, setFilteredCards] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [showMenuFor, setShowMenuFor] = useState(null); // cardId
   const [showEditModal, setShowEditModal] = useState(false);
   const [editCard, setEditCard] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -74,7 +75,6 @@ const MyCardsPage = () => {
   const handleEdit = (card) => {
     setEditCard(card);
     setShowEditModal(true);
-    setShowMenuFor(null);
     // Reset upload states
     setNewImage(null);
     setNewVideo(null);
@@ -82,18 +82,9 @@ const MyCardsPage = () => {
     setRemoveVideo(false);
   };
 
-  const handleDelete = async (cardId) => {
-    if (window.confirm('Are you sure you want to delete this card?')) {
-      await deleteDoc(doc(db, 'cards', cardId));
-      setCards(cards.filter(card => card.id !== cardId));
-      setShowMenuFor(null);
-    }
-  };
-
   const handleShare = (cardId) => {
     setShareLink(`https://card.winccards.ai/card/${cardId}`);
     setShowShareModal(true);
-    setShowMenuFor(null);
   };
 
   const handleImageChange = (e) => setNewImage(e.target.files[0]);
@@ -163,29 +154,65 @@ const MyCardsPage = () => {
     }
   };
 
+  const handleDelete = async (cardId) => {
+    if (window.confirm('Are you sure you want to delete this card?')) {
+      await deleteDoc(doc(db, 'cards', cardId));
+      setCards(cards.filter(card => card.id !== cardId));
+      setShowCardDetail(false);
+    }
+  };
+
   return (
     <div className="main-page-container">
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '30px 0 10px 0' }}>
+      <div
+        className="overview-header"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          padding: "20px 24px 16px 24px",
+          background: "#ffffff",
+          borderBottom: "1px solid #f0f0f0",
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+          flexShrink: 0
+        }}
+      >
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate("/")}
           style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: 28,
-            color: '#222',
-            marginRight: 8
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            fontSize: 24,
+            color: "#715AFF",
+            padding: "8px",
+            marginRight: "12px",
+            borderRadius: "8px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minWidth: "40px",
+            minHeight: "40px"
           }}
-          aria-label="Back to Home"
+          aria-label="Back"
         >
           <IoIosArrowBack />
         </button>
-        <div style={{ fontWeight: 700, fontSize: 22, color: '#222' }}>My Cards</div>
+        <h2 style={{
+          margin: 0,
+          fontWeight: 700,
+          color: "#000",
+          fontSize: "24px",
+          lineHeight: "1.2"
+        }}>
+          My Cards
+        </h2>
       </div>
       <CategoryFilter onSelectCategory={setSelectedCategory} selectedCategory={selectedCategory} />
       <div className="templates-grid">
         {filteredCards.map(card => (
-          <div key={card.id} className="template-card" style={{ position: 'relative', width: 168, height: 210, background: 'none', boxShadow: 'none', margin: 0, padding: 0 }}
+          <div key={card.id} className="template-card card-hover-menu" style={{ position: 'relative', width: 168, height: 210, background: 'none', boxShadow: 'none', margin: 0, padding: 0 }}
             onClick={(e) => {
               e.stopPropagation();
               setSelectedCard(card);
@@ -193,49 +220,7 @@ const MyCardsPage = () => {
             }}
           >
             <TemplateCard template={{ ThumbnailUrl: templateThumbnails[card.templateId] || '', Name: card.receiverName }} />
-            {/* Message is hidden in the card grid - only shown when card is opened */}
-            
-            {/* Card menu button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowMenuFor(showMenuFor === card.id ? null : card.id);
-              }}
-              style={{
-                position: 'absolute',
-                top: 8,
-                right: 8,
-                background: 'rgba(255, 255, 255, 0.9)',
-                border: 'none',
-                borderRadius: '50%',
-                width: 32,
-                height: 32,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                fontSize: 18,
-                color: '#666',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                zIndex: 5
-              }}
-              title="More options"
-            >
-              ⋯
-            </button>
-            
-            {/* Video is hidden in the card grid */}
-            {/* Card menu */}
-            {showMenuFor === card.id && (
-              <div style={{ position: 'absolute', top: 40, right: 10, zIndex: 10 }}>
-                <CardActionMenu
-                  onEdit={() => handleEdit(card)}
-                  onDelete={() => handleDelete(card.id)}
-                  onShare={() => handleShare(card.id)}
-                  onClose={() => setShowMenuFor(null)}
-                />
-              </div>
-            )}
+            {/* Card menu button and menu removed for minimal look */}
           </div>
         ))}
       </div>
@@ -421,7 +406,7 @@ const MyCardsPage = () => {
       {/* Card Detail Modal */}
       {showCardDetail && selectedCard && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '400px', textAlign: 'center' }}>
+          <div className="modal-content" style={{ maxWidth: '400px', textAlign: 'center', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
             <div className="modal-header">
               <h3 style={{ margin: 0, color: '#715AFF', fontSize: '1.2em', fontWeight: 600 }}>
                 Card Details
@@ -430,7 +415,7 @@ const MyCardsPage = () => {
                 &times;
               </button>
             </div>
-            <div style={{ padding: '0 0 20px 0' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0 0 20px 0', minHeight: 0 }}>
               {templateThumbnails[selectedCard.templateId] && (
                 <img 
                   src={templateThumbnails[selectedCard.templateId]} 
@@ -446,16 +431,16 @@ const MyCardsPage = () => {
                 />
               )}
               <div style={{ textAlign: 'left', background: '#f8f9fa', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
-                <div style={{ marginBottom: '12px' }}>
-                  <strong style={{ color: '#715AFF' }}>From:</strong> {selectedCard.senderName}
+                <div style={{ marginBottom: '12px', display: 'flex', gap: 4, alignItems: 'center' }}>
+                  <strong style={{ color: '#715AFF' }}>From:</strong> <span style={{ color: '#111' }}>{selectedCard.senderName && selectedCard.senderName.trim() ? selectedCard.senderName : '—'}</span>
                 </div>
-                <div style={{ marginBottom: '12px' }}>
-                  <strong style={{ color: '#715AFF' }}>To:</strong> {selectedCard.name || selectedCard.recipientName}
+                <div style={{ marginBottom: '12px', display: 'flex', gap: 4, alignItems: 'center' }}>
+                  <strong style={{ color: '#715AFF' }}>To:</strong> <span style={{ color: '#111' }}>{(selectedCard.recipientName && selectedCard.recipientName.trim()) ? selectedCard.recipientName : (selectedCard.name && selectedCard.name.trim()) ? selectedCard.name : '—'}</span>
                 </div>
                 {selectedCard.message && (
                   <div>
                     <strong style={{ color: '#715AFF' }}>Message:</strong>
-                    <p style={{ margin: '8px 0 0 0', lineHeight: '1.5', color: '#444' }}>
+                    <p style={{ margin: '8px 0 0 0', lineHeight: '1.5', color: '#444', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                       {selectedCard.message}
                     </p>
                   </div>
@@ -475,7 +460,7 @@ const MyCardsPage = () => {
                   />
                 </div>
               )}
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: 24 }}>
                 <button
                   className="auth-btn"
                   style={{ 
@@ -486,14 +471,17 @@ const MyCardsPage = () => {
                     fontWeight: 600, 
                     fontSize: '14px',
                     border: 'none',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
                   }}
                   onClick={() => {
                     setShowCardDetail(false);
                     handleEdit(selectedCard);
                   }}
                 >
-                  Edit
+                  <BiEditAlt size={18} /> Edit
                 </button>
                 <button
                   className="auth-btn"
@@ -505,14 +493,36 @@ const MyCardsPage = () => {
                     padding: '10px 20px', 
                     fontWeight: 600, 
                     fontSize: '14px',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
                   }}
                   onClick={() => {
                     setShowCardDetail(false);
                     handleShare(selectedCard.id);
                   }}
                 >
-                  Share
+                  <FaRegShareFromSquare size={16} /> Share
+                </button>
+                <button
+                  className="auth-btn"
+                  style={{ 
+                    background: '#fff', 
+                    color: '#EF4444', 
+                    border: '2px solid #EF4444',
+                    borderRadius: '8px', 
+                    padding: '10px 20px', 
+                    fontWeight: 600, 
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onClick={() => handleDelete(selectedCard.id)}
+                >
+                  <MdOutlineDelete size={18} /> Delete
                 </button>
               </div>
             </div>

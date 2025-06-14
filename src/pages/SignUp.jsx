@@ -79,12 +79,6 @@ const SignUp = () => {
 
   const handleGoogleSignUp = async () => {
     setError(null);
-    // Google Sign-Up functionality temporarily disabled
-    alert("Google Sign-Up is currently unavailable. Please use email/password sign-up.");
-    return;
-    
-    // Commented out Google Sign-Up functionality
-    /*
     try {
       const provider = new GoogleAuthProvider();
       
@@ -94,7 +88,7 @@ const SignUp = () => {
         // Note: The redirect result will be handled in the useEffect above
       } else {
         // Use popup for desktop devices
-        const result = await signInWithPopup(auth, provider);
+        await signInWithPopup(auth, provider);
         alert("Signed up with Google successfully!");
         if (location.state && location.state.cardId) {
           navigate("/checkout", {
@@ -110,7 +104,6 @@ const SignUp = () => {
     } catch (err) {
       setError(err.message);
     }
-    */
   };
 
   const handleAppleSignUp = async () => {
@@ -123,7 +116,7 @@ const SignUp = () => {
         await signInWithRedirect(auth, provider);
       } else {
         // Use popup for desktop devices
-        const result = await signInWithPopup(auth, provider);
+        await signInWithPopup(auth, provider);
         alert("Signed up with Apple successfully!");
         if (location.state && location.state.cardId) {
           navigate("/checkout", {

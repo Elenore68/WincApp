@@ -51,11 +51,11 @@ const Main = () => {
   useEffect(() => {
     let currentTemplates = templates;
 
-    // Filter by category
+    // Filter by category (using CategoryId)
     if (selectedCategory !== "All") {
       // Find the selected category object by name
       const selectedCategoryObj = categories.find(
-        (cat) => cat.name === selectedCategory
+        (cat) => cat.Name === selectedCategory
       );
       if (selectedCategoryObj) {
         currentTemplates = currentTemplates.filter(
@@ -66,7 +66,7 @@ const Main = () => {
       }
     }
 
-    // Filter by search term
+    // Filter by search term (including tags)
     if (searchTerm) {
       const lowercasedSearchTerm = searchTerm.toLowerCase();
       currentTemplates = currentTemplates.filter(
@@ -83,7 +83,7 @@ const Main = () => {
     }
 
     setFilteredTemplates(currentTemplates);
-  }, [searchTerm, selectedCategory, templates, categories]);
+  }, [selectedCategory, searchTerm, templates, categories]);
 
   const handleSearch = (term) => {
     setSearchTerm(term);
@@ -105,8 +105,8 @@ const Main = () => {
         <img src={Logo} alt="Winc Logo" className="main-logo" />
         <div className="animated-tutorial-placeholder">
           {/* Placeholder for animated images/tutorial */}
-          <p>Create a Card Only They Can Open</p>
-          <p>Send unforgettable messages sealed with emotion, unlocked by your face alone.</p>
+          <p>Create a card that only their eyes can open</p>
+          <p>Send unforgettable messages, sealed with emotion, and unlocked only by their face</p>
           <div className="animated-images-row" style={{ display: 'flex', gap: 16, justifyContent: 'center', alignItems: 'center' }}>
              <img src={HeroImage} alt="Hero Visual" style={{ borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.08)', maxWidth: 300, width: '100%', height: 'auto', display: 'block' }} />
           </div>
