@@ -13,6 +13,7 @@ import '../Auth.css';
 import { CardActionMenu } from '../components/CardActionMenu';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import TemplateCard from '../components/TemplateCard';
+import TextCustomizer from '../components/TextCustomizer';
 import { BiEditAlt } from 'react-icons/bi';
 import { FaRegShareFromSquare } from 'react-icons/fa6';
 
@@ -35,6 +36,14 @@ const MyCardsPage = () => {
   const [templateThumbnails, setTemplateThumbnails] = useState({});
   const [selectedCard, setSelectedCard] = useState(null);
   const [showCardDetail, setShowCardDetail] = useState(false);
+  
+  // Text customization state
+  const [textStyles, setTextStyles] = useState({
+    fontFamily: 'inherit',
+    fontSize: 14,
+    color: '#333'
+  });
+  const [showCustomizer, setShowCustomizer] = useState(false);
 
   // Auth check and fetch cards
   useEffect(() => {
@@ -80,6 +89,13 @@ const MyCardsPage = () => {
     setNewVideo(null);
     setRemoveImage(false);
     setRemoveVideo(false);
+    // Initialize text styles from card data or defaults
+    setTextStyles({
+      fontFamily: card.textStyles?.fontFamily || 'inherit',
+      fontSize: card.textStyles?.fontSize || 14,
+      color: card.textStyles?.color || '#333'
+    });
+    setShowCustomizer(false);
   };
 
   const handleShare = (cardId) => {
@@ -98,6 +114,7 @@ const MyCardsPage = () => {
         senderName: updatedCard.senderName || '',
         name: updatedCard.name || '',
         message: updatedCard.message || '',
+        textStyles: textStyles,
         lastModified: new Date(),
       };
       
@@ -261,11 +278,46 @@ const MyCardsPage = () => {
                 />
                 <textarea
                   className="auth-input"
-                  style={{ marginBottom: 10, minHeight: 60 }}
+                  style={{ 
+                    marginBottom: 10, 
+                    minHeight: 60,
+                    fontFamily: textStyles.fontFamily,
+                    fontSize: `${textStyles.fontSize}px`,
+                    color: textStyles.color
+                  }}
                   value={editCard.message}
                   onChange={e => setEditCard({ ...editCard, message: e.target.value })}
                   placeholder="Message"
                 />
+                
+                {/* Text Customization */}
+                <div style={{ marginBottom: '16px', padding: '16px', background: '#f8f9fa', borderRadius: '8px' }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'flex-end', 
+                    alignItems: 'center',
+                    marginBottom: '12px' 
+                  }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <TextCustomizer
+                        textStyles={textStyles}
+                        onStyleChange={setTextStyles}
+                        showCustomizer={false}
+                        onToggleCustomizer={() => setShowCustomizer(!showCustomizer)}
+                        showToggleButton={true}
+                        showClearButton={true}
+                      />
+                    </div>
+                  </div>
+                  <TextCustomizer
+                    textStyles={textStyles}
+                    onStyleChange={setTextStyles}
+                    showCustomizer={showCustomizer}
+                    onToggleCustomizer={() => setShowCustomizer(!showCustomizer)}
+                    showToggleButton={false}
+                    showClearButton={false}
+                  />
+                </div>
                 {/* Image upload */}
                 <div className="upload-section">
                   <Button type="button" className="upload-btn" onClick={() => imageInputRef.current.click()}>
@@ -440,7 +492,15 @@ const MyCardsPage = () => {
                 {selectedCard.message && (
                   <div>
                     <strong style={{ color: '#715AFF' }}>Message:</strong>
-                    <p style={{ margin: '8px 0 0 0', lineHeight: '1.5', color: '#444', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                    <p style={{ 
+                      margin: '8px 0 0 0', 
+                      lineHeight: '1.5', 
+                      color: selectedCard.textStyles?.color || '#444', 
+                      fontFamily: selectedCard.textStyles?.fontFamily || 'inherit',
+                      fontSize: `${selectedCard.textStyles?.fontSize || 14}px`,
+                      wordBreak: 'break-word', 
+                      overflowWrap: 'anywhere' 
+                    }}>
                       {selectedCard.message}
                     </p>
                   </div>

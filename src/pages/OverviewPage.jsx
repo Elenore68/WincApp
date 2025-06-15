@@ -4,6 +4,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db, auth } from "../firebaseConfig";
 import Button from "../components/Button";
 import PremiumModal from "../components/PremiumModal";
+import TextCustomizer from "../components/TextCustomizer";
 import "../Auth.css";
 import { IoIosArrowBack } from "react-icons/io";
 
@@ -13,6 +14,15 @@ const OverviewPage = () => {
   const [template, setTemplate] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  
+  // Text customization state
+  const [textStyles, setTextStyles] = useState({
+    fontFamily: 'inherit',
+    fontSize: 14,
+    color: '#333'
+  });
+  const [showCustomizer, setShowCustomizer] = useState(false);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -254,12 +264,33 @@ const OverviewPage = () => {
                 To: {card.name || card.recipientName}
               </span>
             </div>
+            {/* Simple message label */}
+            <div style={{
+              marginBottom: '12px',
+              paddingBottom: '8px',
+              borderBottom: '1px solid #f0f0f0'
+            }}>
+              <span style={{ fontSize: '12px', color: '#888', fontWeight: '500' }}>
+                Message
+              </span>
+            </div>
+
+            <TextCustomizer
+              textStyles={textStyles}
+              onStyleChange={setTextStyles}
+              showCustomizer={showCustomizer}
+              onToggleCustomizer={() => setShowCustomizer(!showCustomizer)}
+              showToggleButton={false}
+              showClearButton={false}
+            />
+
             <div className="overview-message" style={{ 
               width: '100%', 
               maxWidth: '100%',
-              fontSize: "14px",
+              fontSize: `${textStyles.fontSize}px`,
               lineHeight: "1.5",
-              color: "#333"
+              color: textStyles.color,
+              fontFamily: textStyles.fontFamily
             }}>
               {card.message}
             </div>
@@ -276,6 +307,21 @@ const OverviewPage = () => {
                 </video>
               </div>
             )}
+            
+            <div style={{
+              position: 'absolute',
+              bottom: '12px',
+              right: '12px'
+            }}>
+              <TextCustomizer
+                textStyles={textStyles}
+                onStyleChange={setTextStyles}
+                showCustomizer={false}
+                onToggleCustomizer={() => setShowCustomizer(!showCustomizer)}
+                showToggleButton={true}
+                showClearButton={true}
+              />
+            </div>
           </div>
         )}
       </div>
