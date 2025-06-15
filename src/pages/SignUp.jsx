@@ -8,6 +8,8 @@ import { app } from '../firebaseConfig';
 import { getAuth } from 'firebase/auth';
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 
 const auth = getAuth(app);
 
@@ -18,6 +20,23 @@ const SignUp = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Function to transfer guest card to authenticated user
+  const transferGuestCard = async (user, cardId) => {
+    if (!cardId || !user) return;
+    
+    try {
+      const cardRef = doc(db, 'cards', cardId);
+      await updateDoc(cardRef, {
+        userId: user.uid,
+        isGuestCard: false,
+        transferredAt: new Date()
+      });
+      console.log('✅ Guest card transferred to user account');
+    } catch (error) {
+      console.error('❌ Failed to transfer guest card:', error);
+    }
+  };
 
   // Check if user is on mobile device
   const isMobile = () => {
@@ -34,11 +53,16 @@ const SignUp = () => {
           // User successfully signed up via redirect
           alert("Signed up with Google successfully!");
           if (location.state && location.state.cardId) {
+            // Transfer guest card to authenticated user
+            const user = auth.currentUser;
+            await transferGuestCard(user, location.state.cardId);
+            
             navigate("/checkout", {
               state: {
                 cardId: location.state.cardId,
                 templateImage: location.state.templateImage,
               },
+              replace: true
             });
           } else {
             navigate("/");
@@ -63,11 +87,16 @@ const SignUp = () => {
       });
       alert("✅ Account created successfully!");
       if (location.state && location.state.cardId) {
+        // Transfer guest card to authenticated user
+        const user = auth.currentUser;
+        await transferGuestCard(user, location.state.cardId);
+        
         navigate("/checkout", {
           state: {
             cardId: location.state.cardId,
             templateImage: location.state.templateImage,
           },
+          replace: true
         });
       } else {
         navigate("/");
@@ -91,11 +120,16 @@ const SignUp = () => {
         await signInWithPopup(auth, provider);
         alert("Signed up with Google successfully!");
         if (location.state && location.state.cardId) {
+          // Transfer guest card to authenticated user
+          const user = auth.currentUser;
+          await transferGuestCard(user, location.state.cardId);
+          
           navigate("/checkout", {
             state: {
               cardId: location.state.cardId,
               templateImage: location.state.templateImage,
             },
+            replace: true
           });
         } else {
           navigate("/");
@@ -119,11 +153,16 @@ const SignUp = () => {
         await signInWithPopup(auth, provider);
         alert("Signed up with Apple successfully!");
         if (location.state && location.state.cardId) {
+          // Transfer guest card to authenticated user
+          const user = auth.currentUser;
+          await transferGuestCard(user, location.state.cardId);
+          
           navigate("/checkout", {
             state: {
               cardId: location.state.cardId,
               templateImage: location.state.templateImage,
             },
+            replace: true
           });
         } else {
           navigate("/");

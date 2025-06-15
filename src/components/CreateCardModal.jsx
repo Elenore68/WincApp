@@ -309,9 +309,37 @@ const CreateCardModal = ({ open, onClose, template, cardData }) => {
                     </div>
                   </div>
                 ) : (
-                  <Button type="button" className="upload-btn" onClick={() => document.getElementById('recipient-image-input').click()}>
-                    <IoCloudUploadOutline size={22} style={{ marginRight: 8 }} />
-                    Upload a Recipient image
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('recipient-image-input').click()}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '10px',
+                      background: 'linear-gradient(135deg, #715AFF 0%, #8B5CF6 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '12px',
+                      padding: '16px 20px',
+                      fontSize: '15px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      boxShadow: '0 4px 12px rgba(113, 90, 255, 0.3)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'translateY(-2px)';
+                      e.target.style.boxShadow = '0 6px 16px rgba(113, 90, 255, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = '0 4px 12px rgba(113, 90, 255, 0.3)';
+                    }}
+                  >
+                    <FaImage size={16} />
+                    Upload Recipient Image
                     <input
                       id="recipient-image-input"
                       type="file"
@@ -319,7 +347,7 @@ const CreateCardModal = ({ open, onClose, template, cardData }) => {
                       style={{ display: 'none' }}
                       onChange={handleRecipientImageChange}
                     />
-                  </Button>
+                  </button>
                 )}
               </div>
 

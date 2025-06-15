@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaInstagram, FaTiktok } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
+import { MdLogout } from 'react-icons/md';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import Button from '../components/Button';
@@ -80,10 +81,36 @@ const ProfilePage = () => {
             <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"><FaXTwitter size={28} style={{ color: '#000' }} /></a>
           </div>
           {/* Logout */}
-          <div style={{ textAlign: 'center', marginTop: 10, paddingBottom: 100 }}>
-            <Button onClick={handleLogout} style={{ color: '#F44', background: 'none', fontWeight: 600, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              <span style={{ fontSize: 20 }}>↩</span> Logout
-            </Button>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 10, paddingBottom: 100 }}>
+            <button 
+              onClick={handleLogout} 
+              style={{ 
+                color: '#EF4444', 
+                background: 'none', 
+                border: 'none',
+                fontWeight: 600, 
+                fontSize: 18, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: 8,
+                cursor: 'pointer',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                transition: 'all 0.2s ease',
+                margin: '0 auto'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                e.target.style.transform = 'scale(1.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'transparent';
+                e.target.style.transform = 'scale(1)';
+              }}
+            >
+              <MdLogout size={20} /> Logout
+            </button>
           </div>
         </div>
       </div>

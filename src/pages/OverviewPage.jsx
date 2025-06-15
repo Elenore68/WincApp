@@ -170,7 +170,7 @@ const OverviewPage = () => {
               marginTop: "2px"
             }}
           >
-            {isOpen ? "Click X to close card" : "Click card to open"}
+            {isOpen ? "Click X to close card" : "Your personalized card"}
           </span>
         </div>
       </div>
@@ -185,23 +185,55 @@ const OverviewPage = () => {
         justifyContent: "center"
       }}>
         {!isOpen ? (
-          <div
-            className="overview-cover"
-            onClick={() => setIsOpen(true)}
-            style={{
-              width: 328,
-              height: 583,
-              maxWidth: "100%",
-              maxHeight: "calc(100vh - 200px)",
-              padding: 0,
-              margin: 0,
-              borderRadius: 20,
-              overflow: "hidden",
-              background: "#fff",
-              boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-              cursor: "pointer"
-            }}
-          >
+          <>
+            <div style={{
+              textAlign: "center",
+              marginBottom: "32px",
+              maxWidth: "400px"
+            }}>
+              <p style={{
+                fontSize: "1.8em",
+                fontWeight: 700,
+                background: "linear-gradient(135deg, #715AFF 0%, #A682FF 50%, #715AFF 100%)",
+                backgroundSize: "200% 200%",
+                backgroundClip: "text",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                margin: "0",
+                lineHeight: "1.3",
+                letterSpacing: "-0.02em",
+                textShadow: "0 2px 4px rgba(113, 90, 255, 0.1)",
+                animation: "gradientShift 3s ease-in-out infinite"
+              }}>
+                Click to open card
+              </p>
+            </div>
+            <div
+              className="overview-cover"
+              onClick={() => setIsOpen(true)}
+              style={{
+                width: 328,
+                height: 583,
+                maxWidth: "100%",
+                maxHeight: "calc(100vh - 280px)",
+                padding: 0,
+                margin: 0,
+                borderRadius: 20,
+                overflow: "hidden",
+                background: "#fff",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                cursor: "pointer",
+                transition: "transform 0.2s ease, box-shadow 0.2s ease"
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = "translateY(-4px)";
+                e.target.style.boxShadow = "0 8px 25px rgba(113, 90, 255, 0.15)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = "0 2px 12px rgba(0,0,0,0.08)";
+              }}
+            >
             <img
               src={templateImage}
               alt="Card Cover"
@@ -216,6 +248,7 @@ const OverviewPage = () => {
               }}
             />
           </div>
+          </>
         ) : (
           <div
             className="overview-book"
@@ -295,8 +328,28 @@ const OverviewPage = () => {
             }}>
               {card.message}
             </div>
+            
+            {/* Text Customizer positioned above video/audio */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              marginTop: '16px',
+              marginBottom: '8px',
+              width: '100%'
+            }}>
+              <TextCustomizer
+                textStyles={textStyles}
+                onStyleChange={setTextStyles}
+                showCustomizer={false}
+                onToggleCustomizer={() => setShowCustomizer(!showCustomizer)}
+                showToggleButton={true}
+                showClearButton={true}
+              />
+            </div>
+            
             {card.videoUrl && (
-              <div className="overview-video" style={{ marginTop: "16px" }}>
+              <div className="overview-video" style={{ marginTop: "8px" }}>
                 <video
                   width="100%"
                   controls
@@ -309,7 +362,7 @@ const OverviewPage = () => {
               </div>
             )}
             {card.audioUrl && (
-              <div style={{ marginTop: "16px", width: "100%" }}>
+              <div style={{ marginTop: "8px", width: "100%" }}>
                 <div style={{ 
                   background: '#f8f9fa', 
                   borderRadius: '12px', 
@@ -346,21 +399,6 @@ const OverviewPage = () => {
                 </div>
               </div>
             )}
-            
-            <div style={{
-              position: 'absolute',
-              bottom: '12px',
-              right: '12px'
-            }}>
-              <TextCustomizer
-                textStyles={textStyles}
-                onStyleChange={setTextStyles}
-                showCustomizer={false}
-                onToggleCustomizer={() => setShowCustomizer(!showCustomizer)}
-                showToggleButton={true}
-                showClearButton={true}
-              />
-            </div>
           </div>
         )}
       </div>
