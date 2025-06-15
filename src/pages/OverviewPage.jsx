@@ -7,6 +7,7 @@ import PremiumModal from "../components/PremiumModal";
 import TextCustomizer from "../components/TextCustomizer";
 import "../Auth.css";
 import { IoIosArrowBack } from "react-icons/io";
+import { IoMdVolumeHigh } from "react-icons/io";
 
 const OverviewPage = () => {
   const { cardId } = useParams();
@@ -305,6 +306,44 @@ const OverviewPage = () => {
                   <source src={card.videoUrl} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
+              </div>
+            )}
+            {card.audioUrl && (
+              <div style={{ marginTop: "16px", width: "100%" }}>
+                <div style={{ 
+                  background: '#f8f9fa', 
+                  borderRadius: '12px', 
+                  padding: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #715AFF 0%, #8B5CF6 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white'
+                  }}>
+                    <IoMdVolumeHigh size={24} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: '600', color: '#333', fontSize: '16px', marginBottom: '8px' }}>
+                      Voice Message
+                    </div>
+                    <audio 
+                      src={card.audioUrl} 
+                      controls 
+                      style={{ 
+                        width: '100%',
+                        height: '40px'
+                      }} 
+                    />
+                  </div>
+                </div>
               </div>
             )}
             

@@ -8,6 +8,7 @@ import Button from './Button';
 import { IoCloudUploadOutline } from 'react-icons/io5';
 import { FaImage, FaVideo } from 'react-icons/fa';
 import { MdOutlineDelete } from 'react-icons/md';
+import VoiceRecorder from './VoiceRecorder';
 import { useNavigate } from 'react-router-dom';
 import '../Auth.css';
 import { getAuth } from 'firebase/auth';
@@ -20,8 +21,10 @@ const CreateCardModal = ({ open, onClose, template, cardData }) => {
   const [message, setMessage] = useState('');
   const [recipientImage, setRecipientImage] = useState(null);
   const [video, setVideo] = useState(null);
+  const [audio, setAudio] = useState(null);
   const [existingRecipientImageUrl, setExistingRecipientImageUrl] = useState('');
   const [existingVideoUrl, setExistingVideoUrl] = useState('');
+  const [existingAudioUrl, setExistingAudioUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -33,17 +36,21 @@ const CreateCardModal = ({ open, onClose, template, cardData }) => {
       setMessage(cardData.message || '');
       setExistingRecipientImageUrl(cardData.recipientImageUrl || '');
       setExistingVideoUrl(cardData.videoUrl || '');
+      setExistingAudioUrl(cardData.audioUrl || '');
       // Reset new file uploads when opening edit mode
       setRecipientImage(null);
       setVideo(null);
+      setAudio(null);
     } else if (open) {
       setSenderName('');
       setRecipientName('');
       setMessage('');
       setRecipientImage(null);
       setVideo(null);
+      setAudio(null);
       setExistingRecipientImageUrl('');
       setExistingVideoUrl('');
+      setExistingAudioUrl('');
     }
   }, [cardData, open]);
 
@@ -82,6 +89,15 @@ const CreateCardModal = ({ open, onClose, template, cardData }) => {
   const removeVideo = () => {
     setVideo(null);
     setExistingVideoUrl('');
+  };
+
+  const handleAudioChange = (audioFile) => {
+    setAudio(audioFile);
+  };
+
+  const removeAudio = () => {
+    setAudio(null);
+    setExistingAudioUrl('');
   };
 
   // const handleSubmit = async (e) => {
@@ -131,6 +147,7 @@ const CreateCardModal = ({ open, onClose, template, cardData }) => {
     setLoading(true);
     let recipientImageUrl = existingRecipientImageUrl;
     let videoUrl = existingVideoUrl;
+    let audioUrl = existingAudioUrl;
     try {
       // Upload new recipient image if selected
       if (recipientImage) {
@@ -145,6 +162,13 @@ const CreateCardModal = ({ open, onClose, template, cardData }) => {
         await uploadBytes(videoRef, video);
         videoUrl = await getDownloadURL(videoRef);
       }
+
+      // Upload new audio if selected
+      if (audio) {
+        const audioRef = ref(storage, `audio/${Date.now()}_${audio.name}`);
+        await uploadBytes(audioRef, audio);
+        audioUrl = await getDownloadURL(audioRef);
+      }
       
       const user = auth.currentUser;
       const cardRef = await addDoc(collection(db, 'cards'), {
@@ -154,6 +178,7 @@ const CreateCardModal = ({ open, onClose, template, cardData }) => {
         message,
         recipientImageUrl,
         videoUrl,
+        audioUrl,
         createdAt: new Date(),
         userId: user ? user.uid : null,
         isGuestCard: !user, // Mark as guest card if no user
@@ -372,6 +397,14 @@ const CreateCardModal = ({ open, onClose, template, cardData }) => {
                   </Button>
                 )}
               </div>
+
+              {/* Voice Recording Section */}
+              <VoiceRecorder
+                audioFile={audio}
+                onAudioChange={handleAudioChange}
+                onRemoveAudio={removeAudio}
+                existingAudioUrl={existingAudioUrl}
+              />
             </div>
           </div>
           <div style={{ flexShrink: 0, paddingTop: '16px', borderTop: '1px solid #e9ecef' }}>

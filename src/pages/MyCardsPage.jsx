@@ -5,7 +5,7 @@ import { db, auth } from '../firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 import CategoryFilter from '../components/CategoryFilter';
 import ShareLinkModal from '../components/ShareLinkModal';
-import { IoMdShareAlt } from 'react-icons/io';
+import { IoMdShareAlt, IoMdVolumeHigh } from 'react-icons/io';
 import { MdOutlineDelete } from 'react-icons/md';
 import { IoIosArrowBack } from 'react-icons/io';
 import Button from '../components/Button';
@@ -14,6 +14,7 @@ import { CardActionMenu } from '../components/CardActionMenu';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import TemplateCard from '../components/TemplateCard';
 import TextCustomizer from '../components/TextCustomizer';
+import VoiceRecorder from '../components/VoiceRecorder';
 import { BiEditAlt } from 'react-icons/bi';
 import { FaRegShareFromSquare } from 'react-icons/fa6';
 
@@ -29,10 +30,12 @@ const MyCardsPage = () => {
   const [shareLink, setShareLink] = useState('');
   const [newImage, setNewImage] = useState(null);
   const [newVideo, setNewVideo] = useState(null);
+  const [newAudio, setNewAudio] = useState(null);
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
   const [removeImage, setRemoveImage] = useState(false);
   const [removeVideo, setRemoveVideo] = useState(false);
+  const [removeAudio, setRemoveAudio] = useState(false);
   const [templateThumbnails, setTemplateThumbnails] = useState({});
   const [selectedCard, setSelectedCard] = useState(null);
   const [showCardDetail, setShowCardDetail] = useState(false);
@@ -87,8 +90,10 @@ const MyCardsPage = () => {
     // Reset upload states
     setNewImage(null);
     setNewVideo(null);
+    setNewAudio(null);
     setRemoveImage(false);
     setRemoveVideo(false);
+    setRemoveAudio(false);
     // Initialize text styles from card data or defaults
     setTextStyles({
       fontFamily: card.textStyles?.fontFamily || 'inherit',
@@ -105,6 +110,11 @@ const MyCardsPage = () => {
 
   const handleImageChange = (e) => setNewImage(e.target.files[0]);
   const handleVideoChange = (e) => setNewVideo(e.target.files[0]);
+  const handleAudioChange = (audioFile) => setNewAudio(audioFile);
+  const handleRemoveAudio = () => {
+    setNewAudio(null);
+    setRemoveAudio(true);
+  };
 
   const handleSaveEdit = async (updatedCard) => {
     try {
@@ -147,6 +157,15 @@ const MyCardsPage = () => {
         updatedFields.videoUrl = null;
       }
       
+      // Handle audio upload/removal
+      if (newAudio) {
+        const audioRef = ref(storage, `audio/${auth.currentUser.uid}/${Date.now()}/audio.wav`);
+        await uploadBytes(audioRef, newAudio);
+        updatedFields.audioUrl = await getDownloadURL(audioRef);
+      } else if (removeAudio) {
+        updatedFields.audioUrl = null;
+      }
+      
       // Update the card in Firestore
       await updateDoc(doc(db, 'cards', updatedCard.id), updatedFields);
       
@@ -161,8 +180,10 @@ const MyCardsPage = () => {
       setShowEditModal(false);
       setNewImage(null);
       setNewVideo(null);
+      setNewAudio(null);
       setRemoveImage(false);
       setRemoveVideo(false);
+      setRemoveAudio(false);
       
       alert('Card updated successfully!');
     } catch (error) {
@@ -442,6 +463,14 @@ const MyCardsPage = () => {
                     </div>
                   ) : null}
                 </div>
+                
+                {/* Voice Recording */}
+                <VoiceRecorder
+                  audioFile={newAudio}
+                  onAudioChange={handleAudioChange}
+                  onRemoveAudio={handleRemoveAudio}
+                  existingAudioUrl={editCard.audioUrl && !removeAudio ? editCard.audioUrl : null}
+                />
               </div>
             </div>
             <div style={{ flexShrink: 0, paddingTop: '16px', borderTop: '1px solid #e9ecef' }}>
@@ -518,6 +547,45 @@ const MyCardsPage = () => {
                       boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                     }} 
                   />
+                </div>
+              )}
+              {selectedCard.audioUrl && (
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ 
+                    background: '#f8f9fa', 
+                    borderRadius: '8px', 
+                    padding: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #715AFF 0%, #8B5CF6 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white'
+                    }}>
+                      <IoMdVolumeHigh size={20} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: '500', color: '#333', fontSize: '14px' }}>
+                        Voice Message
+                      </div>
+                      <audio 
+                        src={selectedCard.audioUrl} 
+                        controls 
+                        style={{ 
+                          width: '100%',
+                          height: '32px',
+                          marginTop: '4px'
+                        }} 
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: 24 }}>
