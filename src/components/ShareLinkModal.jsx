@@ -34,11 +34,7 @@ const ShareLinkModal = ({ open, onClose, cardLink }) => {
   };
 
   // Check if Web Share API is supported
-  const isShareSupported = navigator.share && navigator.canShare && navigator.canShare({
-    title: 'Winc Card',
-    text: 'Check out this amazing card I created!',
-    url: cardLink,
-  });
+  const isShareSupported = typeof navigator !== 'undefined' && navigator.share;
 
   return (
     <div className="modal-overlay">

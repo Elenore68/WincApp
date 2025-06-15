@@ -75,14 +75,66 @@ const MyCardsPage = () => {
     return () => unsubscribe();
   }, []);
 
-  // Filter by category
+  // State for categories and templates
+  const [categories, setCategories] = useState([]);
+  const [templates, setTemplates] = useState([]);
+
+  // Fetch categories and templates for filtering
   useEffect(() => {
+    const fetchCategoriesAndTemplates = async () => {
+      try {
+        // Fetch categories
+        const categoriesCollectionRef = collection(db, "categories");
+        const categorySnapshot = await getDocs(categoriesCollectionRef);
+        const categoryList = categorySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setCategories(categoryList);
+
+        // Fetch templates
+        const templatesCollectionRef = collection(db, "templates");
+        const templateSnapshot = await getDocs(templatesCollectionRef);
+        const templateList = templateSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setTemplates(templateList);
+      } catch (error) {
+        console.error('Error fetching categories and templates:', error);
+      }
+    };
+
+    fetchCategoriesAndTemplates();
+  }, []);
+
+  // Filter by category and sort by creation date
+  useEffect(() => {
+    let cardsToFilter = [...cards];
+    
     if (selectedCategory === 'All') {
-      setFilteredCards(cards);
-    } else {
-      setFilteredCards(cards.filter(card => card.category === selectedCategory));
+      cardsToFilter = cards;
+    } else if (categories.length > 0 && templates.length > 0) {
+      // Find the selected category object by name
+      const selectedCategoryObj = categories.find(
+        (cat) => cat.Name === selectedCategory
+      );
+      
+      if (selectedCategoryObj) {
+        // Filter cards by their template's category
+        cardsToFilter = cards.filter(card => {
+          const cardTemplate = templates.find(template => template.id === card.templateId);
+          return cardTemplate && cardTemplate.CategoryId === selectedCategoryObj.id;
+        });
+      } else {
+        cardsToFilter = [];
+      }
     }
-  }, [selectedCategory, cards]);
+    
+    // Sort cards by creation date (most recent first)
+    const sortedCards = cardsToFilter.sort((a, b) => {
+      // Try to use createdAt field first, then fall back to lastModified or id comparison
+      const dateA = a.createdAt?.toDate?.() || a.lastModified?.toDate?.() || new Date(0);
+      const dateB = b.createdAt?.toDate?.() || b.lastModified?.toDate?.() || new Date(0);
+      return dateB - dateA; // Descending order (newest first)
+    });
+    
+    setFilteredCards(sortedCards);
+  }, [selectedCategory, cards, categories, templates]);
 
   const handleEdit = (card) => {
     setEditCard(card);
@@ -247,7 +299,7 @@ const MyCardsPage = () => {
           My Cards
         </h2>
       </div>
-      <CategoryFilter onSelectCategory={setSelectedCategory} selectedCategory={selectedCategory} />
+      <CategoryFilter onSelectCategory={setSelectedCategory} selectedCategory={selectedCategory} categories={categories} />
       <div className="templates-grid">
         {filteredCards.map(card => (
           <div key={card.id} className="template-card card-hover-menu" style={{ position: 'relative', width: 168, height: 210, background: 'none', boxShadow: 'none', margin: 0, padding: 0 }}

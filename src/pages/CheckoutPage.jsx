@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ShareLinkModal from '../components/ShareLinkModal';
+import { FaApplePay } from "react-icons/fa6";
 import '../Auth.css';
 
 const CheckoutPage = () => {
@@ -32,18 +33,20 @@ const CheckoutPage = () => {
     <div style={{
       background: '#222',
       minHeight: '100vh',
-      padding: 0,
+      padding: 'clamp(16px, 4vw, 40px)',
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'center'
+      alignItems: 'center',
+      justifyContent: 'center'
     }}>
       <div style={{
-        width: 350,
-        margin: '40px auto',
+        width: 'clamp(320px, 90vw, 400px)',
+        maxWidth: '95vw',
+        margin: '0 auto',
         background: 'linear-gradient(135deg, #f9f9fe 0%, #e6e6fa 100%)',
-        borderRadius: 18,
+        borderRadius: 'clamp(16px, 3vw, 20px)',
         boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
-        padding: '32px 0 32px 0',
+        padding: 'clamp(20px, 5vw, 32px) 0',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -71,22 +74,23 @@ const CheckoutPage = () => {
           src={templateImage}
           alt="Card Template"
           style={{
-            width: 160,
-            height: 240,
+            width: 'clamp(140px, 35vw, 180px)',
+            height: 'clamp(210px, 52vw, 270px)',
             objectFit: 'cover',
-            borderRadius: 18,
-            marginBottom: 28,
+            borderRadius: 'clamp(14px, 3vw, 18px)',
+            marginBottom: 'clamp(20px, 5vw, 28px)',
             boxShadow: '0 2px 12px rgba(0,0,0,0.10)'
           }}
         />
 
         <div style={{
           background: '#fff',
-          borderRadius: 18,
+          borderRadius: 'clamp(14px, 3vw, 18px)',
           boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-          padding: '24px 24px 12px 24px',
-          width: 270,
-          marginBottom: 18
+          padding: 'clamp(16px, 4vw, 24px)',
+          width: 'clamp(250px, 70vw, 300px)',
+          maxWidth: '85vw',
+          marginBottom: 'clamp(14px, 3vw, 18px)'
         }}>
           <div style={{ color: '#888', fontWeight: 600, marginBottom: 10 }}>order summary</div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: '#222' }}>
@@ -102,18 +106,19 @@ const CheckoutPage = () => {
 
         <div style={{
           background: '#fff',
-          borderRadius: 14,
+          borderRadius: 'clamp(12px, 2.5vw, 16px)',
           boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-          padding: '16px 20px',
-          width: 270,
-          marginBottom: 18,
+          padding: 'clamp(14px, 3vw, 20px)',
+          width: 'clamp(250px, 70vw, 300px)',
+          maxWidth: '85vw',
+          marginBottom: 'clamp(14px, 3vw, 18px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start'
         }}>
-          <div style={{ color: '#888', fontSize: 13, marginBottom: 8 }}>Payment method</div>
+          <div style={{ color: '#888', fontSize: 'clamp(12px, 2.5vw, 14px)', marginBottom: 8 }}>Payment method</div>
           <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple Pay" style={{ width: 32, height: 32, marginRight: 8 }} />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple Pay" style={{ width: 'clamp(28px, 6vw, 32px)', height: 'clamp(28px, 6vw, 32px)', marginRight: 8 }} />
             <span style={{ fontWeight: 600, fontSize: 16 }}>Pay</span>
             <span style={{ marginLeft: 'auto', color: '#715AFF', fontWeight: 500, cursor: 'pointer', fontSize: 14 }}>change</span>
           </div>
@@ -130,11 +135,15 @@ const CheckoutPage = () => {
             fontWeight: 700,
             fontSize: 20,
             marginTop: 8,
-            cursor: 'pointer'
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
           }}
           onClick={handlePay}
         >
-           Pay
+          <FaApplePay size={100} />
         </button>
       </div>
       <ShareLinkModal

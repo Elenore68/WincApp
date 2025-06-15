@@ -32,36 +32,52 @@ const Main = () => {
 
   useEffect(() => {
     const fetchTemplates = async () => {
-      const templatesCollectionRef = collection(db, "templates");
-      const templateSnapshot = await getDocs(templatesCollectionRef);
-      const templateList = templateSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setTemplates(templateList);
-      setFilteredTemplates(templateList); // Initialize filtered templates with all templates
+      try {
+        const templatesCollectionRef = collection(db, "templates");
+        const templateSnapshot = await getDocs(templatesCollectionRef);
+        const templateList = templateSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setTemplates(templateList);
+        setFilteredTemplates(templateList); // Initialize filtered templates with all templates
+      } catch (error) {
+        console.error('Error fetching templates:', error);
+      }
     };
     const fetchCategories = async () => {
-      const categoriesCollectionRef = collection(db, "categories");
-      const categorySnapshot = await getDocs(categoriesCollectionRef);
-      const categoryList = categorySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setCategories(categoryList);
+      try {
+        const categoriesCollectionRef = collection(db, "categories");
+        const categorySnapshot = await getDocs(categoriesCollectionRef);
+        const categoryList = categorySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setCategories(categoryList);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
     };
     fetchTemplates();
     fetchCategories();
   }, []);
 
   useEffect(() => {
+    // Don't filter if templates aren't loaded yet
+    if (templates.length === 0) {
+      setFilteredTemplates([]);
+      return;
+    }
+
     let currentTemplates = templates;
 
     // Filter by category (using CategoryId)
-    if (selectedCategory !== "All") {
+    if (selectedCategory !== "All" && categories.length > 0) {
       // Find the selected category object by name
       const selectedCategoryObj = categories.find(
         (cat) => cat.Name === selectedCategory
       );
+      
       if (selectedCategoryObj) {
         currentTemplates = currentTemplates.filter(
           (template) => template.CategoryId === selectedCategoryObj.id
         );
       } else {
+        // If category not found, show no templates
         currentTemplates = [];
       }
     }
@@ -122,6 +138,7 @@ const Main = () => {
       <CategoryFilter
         onSelectCategory={handleSelectCategory}
         selectedCategory={selectedCategory}
+        categories={categories}
       />
 
       <div className="special-card-prompt">
